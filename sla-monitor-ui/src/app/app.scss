@@ -1,0 +1,77 @@
+:host {
+  display: block;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: #111827;
+  color: white;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  color: #111827;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 14px;
+  background: rgba(17, 24, 39, 0.04);
+  border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.tabs a {
+  text-decoration: none;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+
+.tabs a:hover {
+  background: rgba(17, 24, 39, 0.06);
+}
+
+.tabs a.active {
+  background: #111827;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.18);
+}
+
+.content {
+  padding: 18px;
+}

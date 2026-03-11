@@ -1,0 +1,87 @@
+<div class="page">
+
+
+  <div *ngIf="error" class="alert">{{ error }}</div>
+
+  <ng-container *ngIf="loading; else content">
+    <div class="summary">
+      <div class="stat stat-primary skeleton"></div>
+      <div class="stat stat-secondary skeleton"></div>
+      <div class="stat stat-accent skeleton"></div>
+    </div>
+
+    <div class="section-head"></div>
+
+    <div class="grid">
+      <div class="card skeleton" *ngFor="let x of [1,2,3,4,5,6]"></div>
+    </div>
+  </ng-container>
+
+  <ng-template #content>
+    <ng-container *ngIf="data">
+      <div class="summary">
+        <div class="stat stat-primary">
+          <div class="stat-top">
+            <div class="label">Ortalama SLA</div>
+            <div class="stat-icon blue"></div>
+          </div>
+          <div class="value">%{{ data.averageSlaPercent }}</div>
+          <div class="sub">Tüm ortamlar</div>
+        </div>
+
+        <div class="stat stat-secondary">
+          <div class="stat-top">
+            <div class="label">Ortalama Puan</div>
+            <div class="stat-icon purple"></div>
+          </div>
+          <div class="value">{{ data.averagePoints }}</div>
+          <div class="sub">Skor</div>
+        </div>
+
+        <div class="stat stat-accent">
+          <div class="stat-top">
+            <div class="label">Toplam Kesinti</div>
+            <div class="stat-icon pink"></div>
+          </div>
+          <div class="value">{{ data.totalDowntimeMinutes }} dk</div>
+          <div class="sub">{{ data.totalDowntimeCount }} kayıt</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <h2>Production Environments</h2>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card" *ngFor="let c of data.environmentCards">
+          <div class="card-top">
+            <div class="name-wrap">
+              <div class="env-mark">
+                {{ (c.environment || '').slice(0, 2).toUpperCase() }}
+              </div>
+
+              <div class="name-block">
+                <div class="name">{{ c.environment }}</div>
+              </div>
+            </div>
+
+            <div class="badge">{{ c.points }} puan</div>
+          </div>
+
+          <div class="sla">
+            <div class="sla-value">%{{ c.slaPercent }}</div>
+          </div>
+
+          <div class="metric-list">
+            <div class="row">
+              <span>Kesinti ({{ getDowntimeCount(c.environment) }})</span>
+              <b>{{ c.downtimeMinutes }} dk</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+</div>

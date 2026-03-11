@@ -1,0 +1,24 @@
+<header class="topbar">
+  <div class="left">
+    <div class="logo">SLA</div>
+    <div class="title">SLA Monitor</div>
+  </div>
+
+  <nav class="tabs">
+    <a
+      routerLink="/dashboard"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Dashboard
+    </a>
+
+    <a routerLink="/incidents" routerLinkActive="active">
+      Kesinti
+    </a>
+  </nav>
+</header>
+
+<main class="content">
+  <router-outlet></router-outlet>
+</main>

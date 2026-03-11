@@ -1,0 +1,435 @@
+<div class="page">
+  <!-- TOAST -->
+  <div class="toast" *ngIf="toast.show" [class.success]="toast.type==='success'" [class.error]="toast.type==='error'">
+    {{ toast.message }}
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <div class="search-icon">⌕</div>
+    <input
+      class="search"
+      type="text"
+      placeholder="Ara (environment / müşteri / reason)..."
+      [(ngModel)]="searchText"
+      (ngModelChange)="onFormChange()"
+      (input)="applyFilter()"
+    />
+  </div>
+
+  <div *ngIf="error" class="alert">{{ error }}</div>
+
+  <!-- CREATE FORM -->
+  <div class="card form-card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Yeni Kesinti Kaydı</div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Tarih</label>
+        <input
+          type="datetime-local"
+          [(ngModel)]="createModel.occurredAt"
+          (ngModelChange)="onFormChange()"
+          (change)="onFormChange()"
+        />
+      </div>
+
+      <div class="field">
+        <label>Environment</label>
+        <select
+          [(ngModel)]="createModel.environment"
+          (ngModelChange)="onFormChange()"
+          (change)="onFormChange()"
+        >
+          <option value="">Seçiniz</option>
+          <option *ngFor="let e of environments" [value]="e">{{ e }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Süre (dk)</label>
+        <input
+          type="number"
+          min="1"
+          [(ngModel)]="createModel.durationMinutes"
+          (ngModelChange)="onFormChange()"
+          (input)="onFormChange()"
+        />
+      </div>
+
+      <!-- Müşteri -->
+      <div class="field">
+        <label>Müşteri</label>
+
+        <div class="multi">
+          <button
+            type="button"
+            class="multi-btn"
+            (click)="$event.stopPropagation(); customersOpenCreate = !customersOpenCreate; reasonsOpenCreate = false"
+          >
+            <span class="multi-text" *ngIf="createModel.customersSelected.length > 0">
+              {{ summaryText(createModel.customersSelected) }}
+            </span>
+            <span class="multi-text" *ngIf="createModel.customersSelected.length === 0">Seçiniz...</span>
+            <span class="chev">▾</span>
+          </button>
+
+          <div class="panel" *ngIf="customersOpenCreate" (click)="$event.stopPropagation()">
+            <div class="panel-add">
+              <input
+                class="panel-input"
+                type="text"
+                placeholder="Müşteri yaz ve Enter..."
+                [(ngModel)]="newCustomerCreate"
+                (ngModelChange)="onFormChange()"
+                (click)="$event.stopPropagation()"
+                (keydown.enter)="$event.preventDefault(); addCustomerCreate()"
+              />
+              <button
+                class="panel-addbtn"
+                type="button"
+                (click)="$event.stopPropagation(); addCustomerCreate()"
+              >
+                Ekle
+              </button>
+            </div>
+
+            <label class="opt" *ngFor="let c of customersSuggestions" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="isSelected(createModel.customersSelected, c)"
+                (click)="$event.stopPropagation()"
+                (change)="toggleItem(createModel.customersSelected, c); onFormChange()"
+              />
+              <span>{{ c }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reason -->
+      <div class="field">
+        <label>Reason </label>
+
+        <div class="multi">
+          <button
+            type="button"
+            class="multi-btn"
+            (click)="$event.stopPropagation(); reasonsOpenCreate = !reasonsOpenCreate; customersOpenCreate = false"
+          >
+            <span class="multi-text" *ngIf="createModel.reasonsSelected.length > 0">
+              {{ summaryText(createModel.reasonsSelected) }}
+            </span>
+            <span class="multi-text" *ngIf="createModel.reasonsSelected.length === 0">Seçiniz...</span>
+            <span class="chev">▾</span>
+          </button>
+
+          <div class="panel" *ngIf="reasonsOpenCreate" (click)="$event.stopPropagation()">
+            <div class="panel-add">
+              <input
+                class="panel-input"
+                type="text"
+                placeholder="Reason yaz ve Enter..."
+                [(ngModel)]="newReasonCreate"
+                (ngModelChange)="onFormChange()"
+                (click)="$event.stopPropagation()"
+                (keydown.enter)="$event.preventDefault(); addReasonCreate()"
+              />
+              <button
+                class="panel-addbtn"
+                type="button"
+                (click)="$event.stopPropagation(); addReasonCreate()"
+              >
+                Ekle
+              </button>
+            </div>
+
+            <label class="opt" *ngFor="let r of reasonSuggestions" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="isSelected(createModel.reasonsSelected, r)"
+                (click)="$event.stopPropagation()"
+                (change)="toggleItem(createModel.reasonsSelected, r); onFormChange()"
+              />
+              <span>{{ r }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="btn"
+          (pointerdown)="$event.preventDefault(); createDowntime()"
+          [disabled]="savingCreate || !createValid"
+        >
+          {{ savingCreate ? 'Kaydediliyor...' : 'Kaydet' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn-ghost"
+          (pointerdown)="$event.preventDefault(); cancelCreate()"
+          [disabled]="savingCreate"
+        >
+          Vazgeç
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SORT BAR -->
+  <div class="sortbar">
+    <div class="sort-left">
+      <div class="sort-title">Sıralama</div>
+
+      <select class="sort-select" [(ngModel)]="sortField" (change)="onSortChange()">
+        <option *ngFor="let f of sortFields" [value]="f.value">{{ f.label }}</option>
+      </select>
+
+      <select class="sort-select" [(ngModel)]="sortDir" (change)="onSortChange()">
+        <option value="asc">Artan (A→Z)</option>
+        <option value="desc">Azalan (Z→A)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>
+            <button class="th-btn" type="button" (pointerdown)="$event.preventDefault(); setSort('occurredAt')">
+              Tarih
+              <span class="th-arrow" [class.active]="isSorted('occurredAt')">
+                {{ isSorted('occurredAt') ? (sortDir === 'asc' ? '▲' : '▼') : '↕' }}
+              </span>
+            </button>
+          </th>
+
+          <th>
+            <button class="th-btn" type="button" (pointerdown)="$event.preventDefault(); setSort('environment')">
+              Environment
+              <span class="th-arrow" [class.active]="isSorted('environment')">
+                {{ isSorted('environment') ? (sortDir === 'asc' ? '▲' : '▼') : '↕' }}
+              </span>
+            </button>
+          </th>
+
+          <th>
+            <button class="th-btn" type="button" (pointerdown)="$event.preventDefault(); setSort('durationMinutes')">
+              Süre
+              <span class="th-arrow" [class.active]="isSorted('durationMinutes')">
+                {{ isSorted('durationMinutes') ? (sortDir === 'asc' ? '▲' : '▼') : '↕' }}
+              </span>
+            </button>
+          </th>
+
+          <th>
+            <button class="th-btn" type="button" (pointerdown)="$event.preventDefault(); setSort('customers')">
+              Müşteri
+              <span class="th-arrow" [class.active]="isSorted('customers')">
+                {{ isSorted('customers') ? (sortDir === 'asc' ? '▲' : '▼') : '↕' }}
+              </span>
+            </button>
+          </th>
+
+          <th>
+            <button class="th-btn" type="button" (pointerdown)="$event.preventDefault(); setSort('reason')">
+              Reason
+              <span class="th-arrow" [class.active]="isSorted('reason')">
+                {{ isSorted('reason') ? (sortDir === 'asc' ? '▲' : '▼') : '↕' }}
+              </span>
+            </button>
+          </th>
+
+          <th class="op">İşlem</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let r of filtered">
+          <ng-container *ngIf="editingId === r.id; else viewRow">
+            <td>
+              <input
+                class="cell"
+                type="datetime-local"
+                [(ngModel)]="editModel.occurredAt"
+                (ngModelChange)="onFormChange()"
+                (change)="onFormChange()"
+              />
+            </td>
+
+            <td>
+              <select
+                class="cell"
+                [(ngModel)]="editModel.environment"
+                (ngModelChange)="onFormChange()"
+                (change)="onFormChange()"
+              >
+                <option value="">Seçiniz</option>
+                <option *ngFor="let e of environments" [value]="e">{{ e }}</option>
+              </select>
+            </td>
+
+            <td>
+              <input
+                class="cell"
+                type="number"
+                min="1"
+                [(ngModel)]="editModel.durationMinutes"
+                (ngModelChange)="onFormChange()"
+                (input)="onFormChange()"
+              />
+            </td>
+
+            <td>
+              <div class="multi compact">
+                <button
+                  type="button"
+                  class="multi-btn compact"
+                  (click)="$event.stopPropagation(); customersOpenEdit = !customersOpenEdit; reasonsOpenEdit = false"
+                >
+                  <span class="multi-text" *ngIf="editModel.customersSelected.length > 0">
+                    {{ summaryText(editModel.customersSelected) }}
+                  </span>
+                  <span class="multi-text" *ngIf="editModel.customersSelected.length === 0">Seçiniz...</span>
+                  <span class="chev">▾</span>
+                </button>
+
+                <div class="panel" *ngIf="customersOpenEdit" (click)="$event.stopPropagation()">
+                  <div class="panel-add">
+                    <input
+                      class="panel-input"
+                      type="text"
+                      placeholder="Müşteri yaz ve Enter..."
+                      [(ngModel)]="newCustomerEdit"
+                      (ngModelChange)="onFormChange()"
+                      (click)="$event.stopPropagation()"
+                      (keydown.enter)="$event.preventDefault(); addCustomerEdit()"
+                    />
+                    <button
+                      class="panel-addbtn"
+                      type="button"
+                      (click)="$event.stopPropagation(); addCustomerEdit()"
+                    >
+                      Ekle
+                    </button>
+                  </div>
+
+                  <label class="opt" *ngFor="let c of customersSuggestions" (click)="$event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected(editModel.customersSelected, c)"
+                      (click)="$event.stopPropagation()"
+                      (change)="toggleItem(editModel.customersSelected, c); onFormChange()"
+                    />
+                    <span>{{ c }}</span>
+                  </label>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <div class="multi compact">
+                <button
+                  type="button"
+                  class="multi-btn compact"
+                  (click)="$event.stopPropagation(); reasonsOpenEdit = !reasonsOpenEdit; customersOpenEdit = false"
+                >
+                  <span class="multi-text" *ngIf="editModel.reasonsSelected.length > 0">
+                    {{ summaryText(editModel.reasonsSelected) }}
+                  </span>
+                  <span class="multi-text" *ngIf="editModel.reasonsSelected.length === 0">Seçiniz...</span>
+                  <span class="chev">▾</span>
+                </button>
+
+                <div class="panel" *ngIf="reasonsOpenEdit" (click)="$event.stopPropagation()">
+                  <div class="panel-add">
+                    <input
+                      class="panel-input"
+                      type="text"
+                      placeholder="Reason yaz ve Enter..."
+                      [(ngModel)]="newReasonEdit"
+                      (ngModelChange)="onFormChange()"
+                      (click)="$event.stopPropagation()"
+                      (keydown.enter)="$event.preventDefault(); addReasonEdit()"
+                    />
+                    <button
+                      class="panel-addbtn"
+                      type="button"
+                      (click)="$event.stopPropagation(); addReasonEdit()"
+                    >
+                      Ekle
+                    </button>
+                  </div>
+
+                  <label class="opt" *ngFor="let rr of reasonSuggestions" (click)="$event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected(editModel.reasonsSelected, rr)"
+                      (click)="$event.stopPropagation()"
+                      (change)="toggleItem(editModel.reasonsSelected, rr); onFormChange()"
+                    />
+                    <span>{{ rr }}</span>
+                  </label>
+                </div>
+              </div>
+            </td>
+
+            <td class="op">
+              <button
+                class="btn"
+                type="button"
+                (pointerdown)="$event.preventDefault(); $event.stopPropagation(); saveEdit(r.id)"
+                [disabled]="savingEdit"
+              >
+                {{ savingEdit ? 'Kaydediliyor...' : 'Kaydet' }}
+              </button>
+              <button
+                class="btn-ghost"
+                type="button"
+                (pointerdown)="$event.preventDefault(); $event.stopPropagation(); cancelEdit()"
+                [disabled]="savingEdit"
+              >
+                Vazgeç
+              </button>
+            </td>
+          </ng-container>
+
+          <ng-template #viewRow>
+            <td>{{ r.occurredAt | date:'dd.MM.yyyy HH:mm' }}</td>
+            <td><b>{{ r.environment }}</b></td>
+            <td>{{ r.durationMinutes }} dk</td>
+            <td>{{ r.customers }}</td>
+            <td>{{ r.reason }}</td>
+            <td class="op">
+              <button
+                class="btn-ghost"
+                type="button"
+                (pointerdown)="$event.preventDefault(); $event.stopPropagation(); startEdit(r)"
+                [disabled]="!!deletingId"
+              >
+                Düzenle
+              </button>
+              <button
+                class="btn-danger"
+                type="button"
+                (pointerdown)="$event.preventDefault(); $event.stopPropagation(); deleteRow(r.id)"
+                [disabled]="deletingId === r.id"
+              >
+                {{ deletingId === r.id ? 'Siliniyor...' : 'Sil' }}
+              </button>
+            </td>
+          </ng-template>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
