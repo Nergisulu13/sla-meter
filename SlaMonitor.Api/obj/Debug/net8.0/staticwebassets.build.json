@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "ZDOnbPSBIkPy/V9VcGWNaKZVgVTtcXxxJ8qNiF+46t4=",
+  "Source": "SlaMonitor.Api",
+  "BasePath": "_content/SlaMonitor.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

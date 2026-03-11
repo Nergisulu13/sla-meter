@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\SlaMonitor.Api.props" />
+</Project>
