@@ -9,7 +9,7 @@ builder.Services.AddSwaggerGen();
 
 // SQLite DB
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite("Data Source=slamonitor.db"));
+    opt.UseSqlite("Data Source=/app/data/slamonitor.db"));
 
 // CORS
 builder.Services.AddCors(opt =>
@@ -18,6 +18,13 @@ builder.Services.AddCors(opt =>
 });
 
 var app = builder.Build();
+
+// Migration / DB oluşturma
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();
