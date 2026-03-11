@@ -1,10 +1,8 @@
 <div class="page">
-  <!-- TOAST -->
   <div class="toast" *ngIf="toast.show" [class.success]="toast.type==='success'" [class.error]="toast.type==='error'">
     {{ toast.message }}
   </div>
 
-  <!-- SEARCH -->
   <div class="search-wrap">
     <div class="search-icon">⌕</div>
     <input
@@ -19,7 +17,6 @@
 
   <div *ngIf="error" class="alert">{{ error }}</div>
 
-  <!-- CREATE FORM -->
   <div class="card form-card">
     <div class="card-head">
       <div>
@@ -61,7 +58,6 @@
         />
       </div>
 
-      <!-- Müşteri -->
       <div class="field">
         <label>Müşteri</label>
 
@@ -111,9 +107,8 @@
         </div>
       </div>
 
-      <!-- Reason -->
       <div class="field">
-        <label>Reason </label>
+        <label>Reason</label>
 
         <div class="multi">
           <button
@@ -183,7 +178,6 @@
     </div>
   </div>
 
-  <!-- SORT BAR -->
   <div class="sortbar">
     <div class="sort-left">
       <div class="sort-title">Sıralama</div>
@@ -199,7 +193,6 @@
     </div>
   </div>
 
-  <!-- TABLE -->
   <div class="table-wrap">
     <table class="table">
       <thead>
@@ -404,7 +397,7 @@
           </ng-container>
 
           <ng-template #viewRow>
-            <td>{{ r.occurredAt | date:'dd.MM.yyyy HH:mm' }}</td>
+            <td>{{ formatLocalDate(r.occurredAt) }}</td>
             <td><b>{{ r.environment }}</b></td>
             <td>{{ r.durationMinutes }} dk</td>
             <td>{{ r.customers }}</td>

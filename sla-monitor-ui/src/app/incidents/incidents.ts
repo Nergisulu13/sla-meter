@@ -1,6 +1,6 @@
 import { Component, ChangeDetectorRef, HostListener, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 type Downtime = {
@@ -31,13 +31,16 @@ type ToastState = { show: boolean; message: string; type: ToastType };
 @Component({
   selector: 'app-incidents',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './incidents.html',
   styleUrl: './incidents.scss',
 })
 export class IncidentsComponent {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+
+  private readonly customersStorageKey = 'sla-customers-suggestions';
+  private readonly reasonsStorageKey = 'sla-reasons-suggestions';
 
   environments = ['Eclit', 'Paris', 'Huawei', 'Ohio', 'UAE', 'Preprod Ireland'];
   customersSuggestions = ['Arçelik', 'Vestel', 'THY', 'aws', 'Genesys'];
@@ -98,6 +101,7 @@ export class IncidentsComponent {
   };
 
   ngOnInit() {
+    this.loadSuggestionsFromStorage();
     this.refresh();
     this.updateCreateValid();
   }
@@ -110,9 +114,6 @@ export class IncidentsComponent {
     this.reasonsOpenEdit = false;
   }
 
-  // ---------------------------
-  // helpers
-  // ---------------------------
   onFormChange() {
     this.updateCreateValid();
     this.cdr.detectChanges();
@@ -125,9 +126,69 @@ export class IncidentsComponent {
       Number(this.createModel.durationMinutes) >= 1;
   }
 
-  private toDatetimeLocal(date: Date): string {
+  private loadSuggestionsFromStorage() {
+    const savedCustomers = localStorage.getItem(this.customersStorageKey);
+    const savedReasons = localStorage.getItem(this.reasonsStorageKey);
+
+    if (savedCustomers) {
+      try {
+        const parsed = JSON.parse(savedCustomers);
+        if (Array.isArray(parsed)) {
+          this.customersSuggestions = parsed;
+        }
+      } catch {}
+    }
+
+    if (savedReasons) {
+      try {
+        const parsed = JSON.parse(savedReasons);
+        if (Array.isArray(parsed)) {
+          this.reasonSuggestions = parsed;
+        }
+      } catch {}
+    }
+  }
+
+  private saveSuggestionsToStorage() {
+    localStorage.setItem(this.customersStorageKey, JSON.stringify(this.customersSuggestions));
+    localStorage.setItem(this.reasonsStorageKey, JSON.stringify(this.reasonSuggestions));
+  }
+
+  private parseApiDate(value: string | Date): Date {
+    if (value instanceof Date) return value;
+
+    const raw = (value || '').trim();
+    if (!raw) return new Date('');
+
+    const normalized = raw.replace(' ', 'T');
+    const hasTimezone = /(?:Z|[+\-]\d{2}:\d{2})$/.test(normalized);
+
+    return new Date(hasTimezone ? normalized : `${normalized}Z`);
+  }
+
+  private toDatetimeLocal(value: string | Date): string {
+    const date = this.parseApiDate(value);
+
+    if (Number.isNaN(date.getTime())) return '';
+
     const pad = (n: number) => String(n).padStart(2, '0');
+
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  formatLocalDate(value: string | Date): string {
+    const date = this.parseApiDate(value);
+
+    if (Number.isNaN(date.getTime())) return '';
+
+    return date.toLocaleString(undefined, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
   }
 
   private showToast(message: string, type: ToastType = 'info', ms = 2400) {
@@ -189,6 +250,7 @@ export class IncidentsComponent {
     }
 
     this.newCustomerCreate = '';
+    this.saveSuggestionsToStorage();
     this.updateCreateValid();
     this.cdr.detectChanges();
   }
@@ -205,6 +267,7 @@ export class IncidentsComponent {
     }
 
     this.newReasonCreate = '';
+    this.saveSuggestionsToStorage();
     this.updateCreateValid();
     this.cdr.detectChanges();
   }
@@ -221,6 +284,7 @@ export class IncidentsComponent {
     }
 
     this.newCustomerEdit = '';
+    this.saveSuggestionsToStorage();
     this.cdr.detectChanges();
   }
 
@@ -236,12 +300,10 @@ export class IncidentsComponent {
     }
 
     this.newReasonEdit = '';
+    this.saveSuggestionsToStorage();
     this.cdr.detectChanges();
   }
 
-  // ---------------------------
-  // sorting
-  // ---------------------------
   onSortChange() {
     this.applyFilter();
     this.cdr.detectChanges();
@@ -269,7 +331,8 @@ export class IncidentsComponent {
     const getStr = (v: any) => (v ?? '').toString().toLowerCase();
     const getNum = (v: any) => Number(v ?? 0);
     const getDate = (v: any) => {
-      const t = Date.parse(v);
+      const d = this.parseApiDate(v);
+      const t = d.getTime();
       return Number.isNaN(t) ? 0 : t;
     };
 
@@ -288,9 +351,6 @@ export class IncidentsComponent {
     });
   }
 
-  // ---------------------------
-  // data ops
-  // ---------------------------
   refresh() {
     this.loading = true;
     this.error = '';
@@ -388,7 +448,7 @@ export class IncidentsComponent {
     this.editModel = {
       environment: r.environment,
       durationMinutes: r.durationMinutes,
-      occurredAt: this.toDatetimeLocal(new Date(r.occurredAt)),
+      occurredAt: this.toDatetimeLocal(r.occurredAt),
       customersSelected: this.parseMulti(r.customers),
       reasonsSelected: this.parseMulti(r.reason),
     };

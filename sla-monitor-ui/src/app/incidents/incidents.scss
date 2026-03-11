@@ -202,7 +202,7 @@
 .actions {
   grid-column: span 12;
   display: flex;
-  gap: 10px;
+  gap: 14px;
   justify-content: flex-end;
   align-items: end;
 }
@@ -228,7 +228,10 @@
 
 /* BUTTONS */
 .btn,
-.btn-ghost,
+.btn-ghost {
+  margin-right: 12px;
+}
+
 .btn-danger,
 .multi-btn,
 .panel-addbtn,
@@ -597,6 +600,7 @@
   background: #111827;
   color: #fff;
   min-width: 220px;
+  text-align: center;
 }
 
 .toast.success {
