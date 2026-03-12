@@ -78,17 +78,22 @@ export class DashboardComponent {
     return 'linear-gradient(90deg, #ef4444, #dc2626)';
   }
 
-  getEnvironmentIcon(environment: string): string {
-    const env = (environment || '').trim().toLowerCase();
+  getEnvironmentImage(environment: string): string {
+    const env = this.normalizeEnv(environment);
 
-    if (env.includes('eclit')) return '🖥️';
-    if (env.includes('paris')) return '🌍';
-    if (env.includes('huawei')) return '📡';
-    if (env.includes('ohio')) return '🏢';
-    if (env.includes('uae')) return '🌐';
-    if (env.includes('preprod')) return '🧪';
+    if (env.includes('huawei')) return '/huawei.png';
+    if (env.includes('paris')) return '/paris.png';
+    if (env.includes('eclit')) return '/eclit.png';
+    if (env.includes('ohio')) return '/ohio.png';
+    if (env.includes('uae')) return '/dubai.png';
+    if (env.includes('preprod ireland')) return '/ireland.png';
 
-    return '🖥️';
+    return '/eclit.png';
+  }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = '/eclit.png';
   }
 
   private buildDowntimeCountMap(rows: Downtime[]) {

@@ -1,6 +1,4 @@
 <div class="page">
-
-
   <div *ngIf="error" class="alert">{{ error }}</div>
 
   <ng-container *ngIf="loading; else content">
@@ -59,7 +57,11 @@
           <div class="card-top">
             <div class="name-wrap">
               <div class="env-mark">
-                {{ (c.environment || '').slice(0, 2).toUpperCase() }}
+                <img
+                  [src]="getEnvironmentImage(c.environment)"
+                  [alt]="c.environment"
+                  (error)="onImageError($event)"
+                />
               </div>
 
               <div class="name-block">

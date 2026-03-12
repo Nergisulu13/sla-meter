@@ -1,5 +1,3 @@
-//@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
 html,
 body {
   font-family: 'Inter', sans-serif;
@@ -226,23 +224,26 @@ body {
 /* ENV MARK */
 
 .env-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   border: none;
-  /* İçindeki ikonu beyaz ve hafif parlar yapalım */
-  color: white; 
+  background: rgba(255, 255, 255, 0.72);
+  flex-shrink: 0;
 }
 
-.env-mark svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2.5px; /* Apple tarzı dolgunluk */
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+.env-mark img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
 }
+
 /* TITLE */
 
 .name {
@@ -273,7 +274,6 @@ body {
 .sla {
   margin: 16px 0 18px;
 }
-
 
 .sla-value {
   font-size: 35px;
@@ -346,39 +346,33 @@ body {
     linear-gradient(135deg, rgba(20,184,166,0.10), rgba(255,255,255,0.95));
 }
 
-/* ENV MARK COLORS - BUNLAR KALSIN */
+/* ENV MARK COLORS */
 
 .grid .card:nth-child(6n+1) .env-mark {
   background: #eff6ff;
-  color: #2563eb;
 }
 
 .grid .card:nth-child(6n+2) .env-mark {
   background: #f5f3ff;
-  color: #7c3aed;
 }
 
 .grid .card:nth-child(6n+3) .env-mark {
   background: #ecfdf5;
-  color: #059669;
 }
 
 .grid .card:nth-child(6n+4) .env-mark {
   background: #fffbeb;
-  color: #d97706;
 }
 
 .grid .card:nth-child(6n+5) .env-mark {
   background: #fdf2f8;
-  color: #db2777;
 }
 
 .grid .card:nth-child(6n+6) .env-mark {
   background: #ecfeff;
-  color: #0f766e;
 }
 
-/* BADGE COLORS - DAHA SAKİN */
+/* BADGE COLORS */
 
 .grid .card:nth-child(6n+1) .badge {
   background: #eff6ff;
