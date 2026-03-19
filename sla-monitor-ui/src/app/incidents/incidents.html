@@ -94,15 +94,25 @@
               </button>
             </div>
 
-            <label class="opt" *ngFor="let c of customersSuggestions" (click)="$event.stopPropagation()">
-              <input
-                type="checkbox"
-                [checked]="isSelected(createModel.customersSelected, c)"
-                (click)="$event.stopPropagation()"
-                (change)="toggleItem(createModel.customersSelected, c); onFormChange()"
-              />
-              <span>{{ c }}</span>
-            </label>
+            <div class="opt-row" *ngFor="let c of customersSuggestions" (click)="$event.stopPropagation()">
+              <label class="opt-main">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(createModel.customersSelected, c)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleItem(createModel.customersSelected, c); onFormChange()"
+                />
+                <span>{{ c }}</span>
+              </label>
+
+              <button
+                type="button"
+                class="mini-action danger"
+                (click)="$event.stopPropagation(); deleteCustomerSuggestion(c)"
+              >
+                Sil
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -143,15 +153,25 @@
               </button>
             </div>
 
-            <label class="opt" *ngFor="let r of reasonSuggestions" (click)="$event.stopPropagation()">
-              <input
-                type="checkbox"
-                [checked]="isSelected(createModel.reasonsSelected, r)"
-                (click)="$event.stopPropagation()"
-                (change)="toggleItem(createModel.reasonsSelected, r); onFormChange()"
-              />
-              <span>{{ r }}</span>
-            </label>
+            <div class="opt-row" *ngFor="let r of reasonSuggestions" (click)="$event.stopPropagation()">
+              <label class="opt-main">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(createModel.reasonsSelected, r)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleItem(createModel.reasonsSelected, r); onFormChange()"
+                />
+                <span>{{ r }}</span>
+              </label>
+
+              <button
+                type="button"
+                class="mini-action danger"
+                (click)="$event.stopPropagation(); deleteReasonSuggestion(r)"
+              >
+                Sil
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -316,15 +336,25 @@
                     </button>
                   </div>
 
-                  <label class="opt" *ngFor="let c of customersSuggestions" (click)="$event.stopPropagation()">
-                    <input
-                      type="checkbox"
-                      [checked]="isSelected(editModel.customersSelected, c)"
-                      (click)="$event.stopPropagation()"
-                      (change)="toggleItem(editModel.customersSelected, c); onFormChange()"
-                    />
-                    <span>{{ c }}</span>
-                  </label>
+                  <div class="opt-row" *ngFor="let c of customersSuggestions" (click)="$event.stopPropagation()">
+                    <label class="opt-main">
+                      <input
+                        type="checkbox"
+                        [checked]="isSelected(editModel.customersSelected, c)"
+                        (click)="$event.stopPropagation()"
+                        (change)="toggleItem(editModel.customersSelected, c); onFormChange()"
+                      />
+                      <span>{{ c }}</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      class="mini-action danger"
+                      (click)="$event.stopPropagation(); deleteCustomerSuggestion(c)"
+                    >
+                      Sil
+                    </button>
+                  </div>
                 </div>
               </div>
             </td>
@@ -363,15 +393,25 @@
                     </button>
                   </div>
 
-                  <label class="opt" *ngFor="let rr of reasonSuggestions" (click)="$event.stopPropagation()">
-                    <input
-                      type="checkbox"
-                      [checked]="isSelected(editModel.reasonsSelected, rr)"
-                      (click)="$event.stopPropagation()"
-                      (change)="toggleItem(editModel.reasonsSelected, rr); onFormChange()"
-                    />
-                    <span>{{ rr }}</span>
-                  </label>
+                  <div class="opt-row" *ngFor="let rr of reasonSuggestions" (click)="$event.stopPropagation()">
+                    <label class="opt-main">
+                      <input
+                        type="checkbox"
+                        [checked]="isSelected(editModel.reasonsSelected, rr)"
+                        (click)="$event.stopPropagation()"
+                        (change)="toggleItem(editModel.reasonsSelected, rr); onFormChange()"
+                      />
+                      <span>{{ rr }}</span>
+                    </label>
+
+                    <button
+                      type="button"
+                      class="mini-action danger"
+                      (click)="$event.stopPropagation(); deleteReasonSuggestion(rr)"
+                    >
+                      Sil
+                    </button>
+                  </div>
                 </div>
               </div>
             </td>

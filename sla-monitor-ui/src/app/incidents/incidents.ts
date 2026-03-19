@@ -133,18 +133,14 @@ export class IncidentsComponent {
     if (savedCustomers) {
       try {
         const parsed = JSON.parse(savedCustomers);
-        if (Array.isArray(parsed)) {
-          this.customersSuggestions = parsed;
-        }
+        if (Array.isArray(parsed)) this.customersSuggestions = parsed;
       } catch {}
     }
 
     if (savedReasons) {
       try {
         const parsed = JSON.parse(savedReasons);
-        if (Array.isArray(parsed)) {
-          this.reasonSuggestions = parsed;
-        }
+        if (Array.isArray(parsed)) this.reasonSuggestions = parsed;
       } catch {}
     }
   }
@@ -168,7 +164,6 @@ export class IncidentsComponent {
 
   private toDatetimeLocal(value: string | Date): string {
     const date = this.parseApiDate(value);
-
     if (Number.isNaN(date.getTime())) return '';
 
     const pad = (n: number) => String(n).padStart(2, '0');
@@ -178,7 +173,6 @@ export class IncidentsComponent {
 
   formatLocalDate(value: string | Date): string {
     const date = this.parseApiDate(value);
-
     if (Number.isNaN(date.getTime())) return '';
 
     return date.toLocaleString(undefined, {
@@ -236,6 +230,26 @@ export class IncidentsComponent {
 
   private normalizeLabel(v: string) {
     return (v || '').trim().replace(/\s+/g, ' ');
+  }
+
+  deleteCustomerSuggestion(value: string) {
+    this.customersSuggestions = this.customersSuggestions.filter((x) => x !== value);
+    this.createModel.customersSelected = this.createModel.customersSelected.filter((x) => x !== value);
+    this.editModel.customersSelected = this.editModel.customersSelected.filter((x) => x !== value);
+
+    this.saveSuggestionsToStorage();
+    this.showToast('Müşteri listeden silindi ✅', 'success');
+    this.cdr.detectChanges();
+  }
+
+  deleteReasonSuggestion(value: string) {
+    this.reasonSuggestions = this.reasonSuggestions.filter((x) => x !== value);
+    this.createModel.reasonsSelected = this.createModel.reasonsSelected.filter((x) => x !== value);
+    this.editModel.reasonsSelected = this.editModel.reasonsSelected.filter((x) => x !== value);
+
+    this.saveSuggestionsToStorage();
+    this.showToast('Reason listeden silindi ✅', 'success');
+    this.cdr.detectChanges();
   }
 
   addCustomerCreate() {
@@ -475,6 +489,7 @@ export class IncidentsComponent {
       this.cdr.detectChanges();
       return;
     }
+
     if (!this.editModel.durationMinutes || this.editModel.durationMinutes < 1) {
       this.error = 'Süre (dk) en az 1 olmalı.';
       this.cdr.detectChanges();
