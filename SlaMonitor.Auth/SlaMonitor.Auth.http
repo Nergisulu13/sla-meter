@@ -1,0 +1,6 @@
+@SlaMonitor.Auth_HostAddress = http://localhost:5183
+
+GET {{SlaMonitor.Auth_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
