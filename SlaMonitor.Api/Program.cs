@@ -1,24 +1,43 @@
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.Validation.AspNetCore;
 using SlaMonitor.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite("Data Source=/app/data/slamonitor.db"));
-
-
-builder.Services.AddCors(opt =>
+builder.Services.AddCors(options =>
 {
-    opt.AddPolicy("ui", p => p.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+    options.AddPolicy("frontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
-var app = builder.Build();
+builder.Services.AddDbContext<AppDbContext>(opt =>
+   opt.UseSqlite("Data Source=slamonitor.db")
+   
+builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
+builder.Services.AddAuthorization();
+
+builder.Services.AddOpenIddict()
+    .AddValidation(options =>
+    {
+        options.SetIssuer("http://localhost:5183");
+        options.AddAudiences("resource_server");
+
+        options.UseSystemNetHttp();
+        options.UseAspNetCore()
+               .DisableTransportSecurityRequirement();
+    });
+
+var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -29,7 +48,12 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors("ui");
+app.UseRouting();
+
+app.UseCors("frontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

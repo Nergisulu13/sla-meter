@@ -126,3 +126,12 @@ C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\runtimes\w
 C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\runtimes\win-arm64\native\e_sqlite3.dll
 C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\runtimes\win-x64\native\e_sqlite3.dll
 C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\runtimes\win-x86\native\e_sqlite3.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\obj\Debug\net8.0\SlaMonitor.Api.sourcelink.json
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Api\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
