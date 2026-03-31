@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using SlaMonitor.Auth.Data;
 using SlaMonitor.Auth.Models;
-using static OpenIddict.Abstractions.OpenIddictConstants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,15 +24,7 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseOpenIddict();
 });
 
-builder.Services
-    .AddIdentity<AuthUser, IdentityRole>(options =>
-    {
-        options.Password.RequireDigit = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequiredLength = 6;
-    })
+builder.Services.AddIdentity<AuthUser, IdentityRole>()
     .AddEntityFrameworkStores<AuthDbContext>()
     .AddDefaultTokenProviders();
 
@@ -53,30 +44,40 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("/connect/authorize")
                .SetTokenEndpointUris("/connect/token");
 
-        options.AllowAuthorizationCodeFlow();
+        options.SetIssuer(new Uri("http://localhost:5183"));
+
+        options.AllowAuthorizationCodeFlow()
+               .AllowRefreshTokenFlow();
 
         options.RegisterScopes(
-            Scopes.OpenId,
-            Scopes.Profile,
+            OpenIddictConstants.Scopes.OpenId,
+            OpenIddictConstants.Scopes.Profile,
+            OpenIddictConstants.Scopes.OfflineAccess,
             "incidents_api");
+
+        options.SetAccessTokenLifetime(TimeSpan.FromMinutes(1));
+        options.SetRefreshTokenLifetime(TimeSpan.FromMinutes(10));
 
         options.AddDevelopmentEncryptionCertificate()
                .AddDevelopmentSigningCertificate();
 
         options.DisableAccessTokenEncryption();
 
+        options.AcceptAnonymousClients();
+
         options.UseAspNetCore()
                .EnableAuthorizationEndpointPassthrough()
                .EnableTokenEndpointPassthrough()
                .DisableTransportSecurityRequirement();
-    })
-    .AddValidation(options =>
-    {
-        options.UseLocalServer();
-        options.UseAspNetCore();
     });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseStaticFiles();
 app.UseRouting();
@@ -87,55 +88,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapDefaultControllerRoute();
 
-await SeedDataAsync(app);
-
-app.Run();
-
-static async Task SeedDataAsync(WebApplication app)
-{
-    using var scope = app.Services.CreateScope();
-
-    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    await db.Database.EnsureCreatedAsync();
-
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthUser>>();
-    var appManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
-
-    var user = await userManager.FindByNameAsync("admin");
-    if (user is null)
-    {
-        user = new AuthUser
-        {
-            UserName = "admin",
-            Email = "admin@test.com",
-            Tenant = "default",
-            EmailConfirmed = true
-        };
-
-        await userManager.CreateAsync(user, "Admin123!");
-    }
-
-    if (await appManager.FindByClientIdAsync("sla-angular") is null)
-    {
-        await appManager.CreateAsync(new OpenIddictApplicationDescriptor
-        {
-            ClientId = "sla-angular",
-            DisplayName = "SLA Angular UI",
-            RedirectUris =
-            {
-                new Uri("http://localhost:4200/auth/callback")
-            },
-            Permissions =
-            {
-                Permissions.Endpoints.Authorization,
-                Permissions.Endpoints.Token,
-                Permissions.GrantTypes.AuthorizationCode,
-                Permissions.ResponseTypes.Code,
-                Permissions.Prefixes.Scope + Scopes.OpenId,
-                Permissions.Prefixes.Scope + Scopes.Profile,
-                Permissions.Prefixes.Scope + "incidents_api"
-            }
-        });
-    }
-}
+app.Run("http://localhost:5183");

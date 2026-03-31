@@ -55,6 +55,7 @@ namespace SlaMonitor.Auth.Controllers
             {
                 Scopes.OpenId,
                 Scopes.Profile,
+                Scopes.OfflineAccess,
                 "incidents_api"
             });
 

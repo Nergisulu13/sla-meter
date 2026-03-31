@@ -20,8 +20,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
-   opt.UseSqlite("Data Source=slamonitor.db")
-   
+    opt.UseSqlite("Data Source=slamonitor.db")); // 🔥 LOCAL
+    
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
 builder.Services.AddAuthorization();
@@ -33,8 +33,7 @@ builder.Services.AddOpenIddict()
         options.AddAudiences("resource_server");
 
         options.UseSystemNetHttp();
-        options.UseAspNetCore()
-               .DisableTransportSecurityRequirement();
+        options.UseAspNetCore();
     });
 
 var app = builder.Build();

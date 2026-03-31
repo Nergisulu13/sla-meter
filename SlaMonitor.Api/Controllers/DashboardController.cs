@@ -60,10 +60,8 @@ namespace SlaMonitor.Api.Controllers
                     .Sum(x => x.DurationMinutes);
 
                 double sla = CalcSlaPercent(envMinutes, minutesInPeriod);
-
                 double targetSla = GetTargetSlaPercent(env);
                 int allowedMinutes = CalcAllowedDowntimeMinutesFromTarget(targetSla, minutesInPeriod);
-
                 int points = GetPoints(sla);
 
                 cards.Add(new EnvironmentSlaCard(
