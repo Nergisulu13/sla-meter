@@ -1,11 +1,77 @@
 {
   "Version": 1,
-  "Hash": "G/xSDH9xGneKGqdMuqz1ZaioD0PZwSA2X4M2e6KXHjU=",
+  "Hash": "6Lx6l9U5MDaWg27UAVnI1ezWV21+f3Jf3PltOlFYbqw=",
   "Source": "SlaMonitor.Auth",
   "BasePath": "_content/SlaMonitor.Auth",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "SlaMonitor.Auth\\wwwroot",
+      "Source": "SlaMonitor.Auth",
+      "ContentRoot": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\",
+      "BasePath": "_content/SlaMonitor.Auth",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\knovvu.png",
+      "SourceId": "SlaMonitor.Auth",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\",
+      "BasePath": "_content/SlaMonitor.Auth",
+      "RelativePath": "knovvu.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\knovvu.png"
+    },
+    {
+      "Identity": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\logo-dark.png",
+      "SourceId": "SlaMonitor.Auth",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\",
+      "BasePath": "_content/SlaMonitor.Auth",
+      "RelativePath": "logo-dark.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\logo-dark.png"
+    },
+    {
+      "Identity": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\sestek.png",
+      "SourceId": "SlaMonitor.Auth",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\",
+      "BasePath": "_content/SlaMonitor.Auth",
+      "RelativePath": "sestek.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\sestek.png"
+    }
+  ]
 }

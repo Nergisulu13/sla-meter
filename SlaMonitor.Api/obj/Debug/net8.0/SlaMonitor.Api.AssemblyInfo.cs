@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SlaMonitor.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9f47efd6ae4737d0681b5c5903272408dd823585")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dccc4389ac6b3e907237c7b836e86486e3e2ad73")]
 [assembly: System.Reflection.AssemblyProductAttribute("SlaMonitor.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SlaMonitor.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

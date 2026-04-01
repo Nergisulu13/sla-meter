@@ -21,15 +21,6 @@ type DashboardDto = {
   environmentCards: EnvironmentSlaCard[];
 };
 
-type Downtime = {
-  id: string;
-  environment: string;
-  durationMinutes: number;
-  customers: string;
-  reason: string;
-  occurredAt: string;
-};
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -46,8 +37,6 @@ export class DashboardComponent {
   loading = false;
   error = '';
 
-  downtimeCountMap: Record<string, number> = {};
-
   ngOnInit() {
     this.refresh();
 
@@ -60,14 +49,6 @@ export class DashboardComponent {
       });
   }
 
-  private normalizeEnv(value: string | null | undefined): string {
-    return (value || '').trim().toLowerCase();
-  }
-
-  getDowntimeCount(environment: string): number {
-    return this.downtimeCountMap[this.normalizeEnv(environment)] || 0;
-  }
-
   getSlaBarGradient(sla: number): string {
     if (sla >= 99.99) {
       return 'linear-gradient(90deg, #22c55e, #10b981)';
@@ -76,6 +57,10 @@ export class DashboardComponent {
       return 'linear-gradient(90deg, #f59e0b, #f97316)';
     }
     return 'linear-gradient(90deg, #ef4444, #dc2626)';
+  }
+
+  private normalizeEnv(value: string | null | undefined): string {
+    return (value || '').trim().toLowerCase();
   }
 
   getEnvironmentImage(environment: string): string {
@@ -96,23 +81,9 @@ export class DashboardComponent {
     img.src = '/eclit.png';
   }
 
-  private buildDowntimeCountMap(rows: Downtime[]) {
-    const map: Record<string, number> = {};
-
-    for (const row of rows || []) {
-      const key = this.normalizeEnv(row.environment);
-      if (!key) continue;
-      map[key] = (map[key] || 0) + 1;
-    }
-
-    this.downtimeCountMap = map;
-    this.cdr.detectChanges();
-  }
-
   private refresh() {
     this.loading = true;
     this.error = '';
-    this.downtimeCountMap = {};
     this.cdr.detectChanges();
 
     this.http.get<DashboardDto>('/api/Dashboard').subscribe({
@@ -120,16 +91,6 @@ export class DashboardComponent {
         this.data = res;
         this.loading = false;
         this.cdr.detectChanges();
-
-        this.http.get<Downtime[]>('/api/Downtimes').subscribe({
-          next: (rows) => {
-            this.buildDowntimeCountMap(rows ?? []);
-          },
-          error: (err) => {
-            console.error('Downtime verisi alınamadı:', err);
-            this.cdr.detectChanges();
-          },
-        });
       },
       error: (err) => {
         console.error(err);

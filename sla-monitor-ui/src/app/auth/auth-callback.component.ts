@@ -28,10 +28,11 @@ export class AuthCallbackComponent implements OnInit {
       const returnUrl = this.auth.getReturnUrl();
       this.auth.clearReturnUrl();
 
-      await this.router.navigateByUrl(returnUrl);
+      await this.router.navigateByUrl(returnUrl || '/incidents');
     } catch (error) {
       console.error('Token alma hatası:', error);
-      this.auth.logout();
+      this.auth.clearTokens();
+      this.auth.clearReturnUrl();
       await this.router.navigateByUrl('/dashboard');
     }
   }

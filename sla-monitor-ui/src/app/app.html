@@ -8,9 +8,14 @@
     <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       Dashboard
     </a>
+
     <a routerLink="/incidents" routerLinkActive="active">
       Kesinti
     </a>
+
+    <button type="button" class="logout-btn" (click)="logout()">
+      Çıkış Yap
+    </button>
   </nav>
 </header>
 
