@@ -35,7 +35,7 @@ namespace SlaMonitor.Auth.Controllers
                 return View();
             }
 
-            var result = await _signInManager.PasswordSignInAsync(user, password, true, false);
+            var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
             if (!result.Succeeded)
             {
                 ViewBag.ReturnUrl = returnUrl;
@@ -46,7 +46,7 @@ namespace SlaMonitor.Auth.Controllers
             if (!string.IsNullOrWhiteSpace(returnUrl))
                 return Redirect(returnUrl);
 
-            return Redirect("/");
+            return Redirect("http://localhost:4200/dashboard");
         }
 
         [HttpGet("/account/logout")]

@@ -4,32 +4,264 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f3f3f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.03);
+            z-index: 0;
+        }
+
+        body::before {
+            width: 720px;
+            height: 720px;
+            left: -280px;
+            bottom: -260px;
+        }
+
+        body::after {
+            width: 980px;
+            height: 980px;
+            right: -420px;
+            top: -300px;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 560px;
+            padding: 24px;
+        }
+
+        /* 🔥 BRAND (LOGO + TEXT) */
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 36px;
+        }
+
+        .logo {
+            width: 250px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .brand-text {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .brand-main {
+            font-size: 28px;
+            font-weight: 500;
+            color: #222;
+        }
+
+        .brand-sub {
+            font-size: 16px;
+            color: #9aa0a6;
+        }
+
+        /* CARD */
+        .login-card {
+            background: #ffffff;
+            border: 1px solid #d9d9d9;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 22px 30px;
+            border-bottom: 1px solid #ececec;
+            font-size: 20px;
+            font-weight: 700;
+            color: #000;
+            background: #fff;
+        }
+
+        .tenant-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 30px;
+            border-bottom: 1px solid #ececec;
+            background: #fafafa;
+        }
+
+        .tenant-label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .tenant-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .switch-btn {
+            border: 2px solid #183a6b;
+            background: #fff;
+            color: #183a6b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .error-box {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fff1f1;
+            border: 1px solid #f1bcbc;
+            color: #b42318;
+        }
+
+        .input-group {
+            margin-bottom: 14px;
+        }
+
+        .input-box {
+            width: 100%;
+            height: 64px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: #f3f3f3;
+            padding: 0 16px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .input-box:focus {
+            background: #fff;
+            border-color: #183a6b;
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0 22px;
+        }
+
+        .forgot-link {
+            color: #183a6b;
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            background: #16396a;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #0f2f5a;
+        }
+
+    </style>
 </head>
 <body>
 
-<h2>Giriş Yap</h2>
+<div class="page">
 
-@if (!string.IsNullOrEmpty(error))
-{
-    <p style="color:red">@error</p>
-}
+    <!-- 🔥 LOGO + TEXT -->
+    <div class="brand">
+        <img src="/logo-dark.png" class="logo" />
+        <div class="brand-text">
+        </div>
+    </div>
 
-<form method="post" action="/account/login">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="returnUrl" value="@returnUrl" />
+    <div class="login-card">
 
-    <label>Kullanıcı</label>
-    <input name="username" />
+        <div class="card-header">
+            Login
+        </div>
 
-    <label>Şifre</label>
-    <input name="password" type="password" />
+        <div class="tenant-row">
+            <div>
+                <div class="tenant-label">Tenant</div>
+                <div class="tenant-name">default</div>
+            </div>
 
-    <button type="submit">Login</button>
-</form>
+            <button class="switch-btn">switch</button>
+        </div>
+
+        <div class="card-body">
+
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="error-box">@error</div>
+            }
+
+            <form method="post" action="/account/login">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                <div class="input-group">
+                    <input class="input-box" name="username" placeholder="User name or email address" />
+                </div>
+
+                <div class="input-group">
+                    <input class="input-box" type="password" name="password" placeholder="Password" />
+                </div>
+
+                <div class="options-row">
+                    <label>
+                        <input type="checkbox" name="rememberMe" />
+                        Remember me
+                    </label>
+
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button class="login-btn">Login</button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>

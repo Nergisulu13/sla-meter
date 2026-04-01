@@ -10,9 +10,9 @@ import { AuthService } from './auth/auth.service';
   styleUrl: './app.scss'
 })
 export class App {
-  auth = inject(AuthService);
+  private auth = inject(AuthService);
 
   logout() {
-    this.auth.logout();
+    this.auth.logout(); // 🔥 BURASI
   }
 }

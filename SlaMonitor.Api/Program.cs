@@ -20,8 +20,9 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite("Data Source=slamonitor.db")); // 🔥 LOCAL
-    
+    opt.UseSqlite("Data Source=slamonitor.db")
+);
+
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
 builder.Services.AddAuthorization();

@@ -101,8 +101,8 @@ export class AuthService {
   }
 
   logout() {
-    this.clearTokens();
-    localStorage.removeItem('return_url');
-    window.location.href = `${this.authBaseUrl}/account/logout`;
-  }
+   this.clearTokens();
+   this.clearReturnUrl();
+   window.location.href = `${this.authBaseUrl}/account/logout`;
+}
 }

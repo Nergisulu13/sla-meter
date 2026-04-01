@@ -187,3 +187,4 @@ C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Auth\bin\Debug\net8.0\SlaMonito
 C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Auth\bin\Debug\net8.0\SlaMonitor.Auth.pdb
 C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Auth\obj\Debug\net8.0\SlaMonitor.Auth.genruntimeconfig.cache
 C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Auth\obj\Debug\net8.0\ref\SlaMonitor.Auth.dll
+C:\Users\nergis.ulu\Desktop\sla-meter\SlaMonitor.Auth\bin\Debug\net8.0\SlaMonitor.Auth.staticwebassets.runtime.json

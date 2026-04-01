@@ -1,0 +1,33 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\knovvu.png",
+      "PackagePath": "staticwebassets\\knovvu.png"
+    },
+    {
+      "Id": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\logo-dark.png",
+      "PackagePath": "staticwebassets\\logo-dark.png"
+    },
+    {
+      "Id": "C:\\Users\\nergis.ulu\\Desktop\\sla-meter\\SlaMonitor.Auth\\wwwroot\\sestek.png",
+      "PackagePath": "staticwebassets\\sestek.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.SlaMonitor.Auth.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.SlaMonitor.Auth.props",
+      "PackagePath": "build\\SlaMonitor.Auth.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.SlaMonitor.Auth.props",
+      "PackagePath": "buildMultiTargeting\\SlaMonitor.Auth.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.SlaMonitor.Auth.props",
+      "PackagePath": "buildTransitive\\SlaMonitor.Auth.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -15,7 +15,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/account/logout');
 
   let authReq = req;
-
   const token = auth.getAccessToken();
 
   if (isProtectedRequest && !isAuthEndpoint && token) {
@@ -31,17 +30,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401 && isProtectedRequest) {
         const refreshToken = auth.getRefreshToken();
 
+        // Refresh token yoksa direkt login
         if (!refreshToken) {
-          auth.clearTokens();
-          auth.login('/incidents');
+          auth.logout();
           return throwError(() => error);
         }
 
         return auth.refreshToken().pipe(
           switchMap((res: any) => {
             if (!res?.access_token) {
-              auth.clearTokens();
-              auth.login('/incidents');
+              auth.logout();
               return throwError(() => error);
             }
 
@@ -60,8 +58,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return next(retryReq);
           }),
           catchError((refreshError) => {
-            auth.clearTokens();
-            auth.login('/incidents');
+            // Refresh token da fail olduysa login
+            auth.logout();
             return throwError(() => refreshError);
           })
         );
