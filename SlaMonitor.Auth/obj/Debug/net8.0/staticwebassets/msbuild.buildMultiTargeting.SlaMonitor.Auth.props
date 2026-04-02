@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\SlaMonitor.Auth.props" />
-</Project>
