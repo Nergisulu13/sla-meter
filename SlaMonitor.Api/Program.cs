@@ -25,7 +25,26 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DowntimesRead", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                  "Admin", "Operator", "Viewer"));
+
+    options.AddPolicy("DowntimesWrite", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                  "Admin", "Operator"));
+
+    options.AddPolicy("DowntimesDelete", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                  "Admin"));
+});
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>

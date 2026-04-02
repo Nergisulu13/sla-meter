@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using SlaMonitor.Auth.Data;
 using SlaMonitor.Auth.Models;
+using SlaMonitor.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +78,12 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     db.Database.Migrate();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await IdentitySeed.SeedAsync(services);
 }
 
 app.UseStaticFiles();
