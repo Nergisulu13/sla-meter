@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
+using SlaMonitor.Auth;
 using SlaMonitor.Auth.Data;
 using SlaMonitor.Auth.Models;
 
@@ -44,7 +45,7 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("/connect/authorize")
                .SetTokenEndpointUris("/connect/token");
 
-        options.SetIssuer(new Uri("http://localhost:5183"));
+        options.SetIssuer(new Uri("http://localhost:5183/"));
 
         options.AllowAuthorizationCodeFlow()
                .AllowRefreshTokenFlow();
@@ -76,7 +77,9 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
+
+    await IdentitySeed.SeedAsync(scope.ServiceProvider);
 }
 
 app.UseStaticFiles();

@@ -20,11 +20,31 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite("Data Source=slamonitor.db")); // 🔥 LOCAL
-    
+    opt.UseSqlite("Data Source=slamonitor.db")
+);
+
 builder.Services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("DowntimesRead", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                  "Admin", "Operator", "Viewer"));
+
+    options.AddPolicy("DowntimesWrite", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                  "Admin", "Operator"));
+
+    options.AddPolicy("DowntimesDelete", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim(
+                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                  "Admin"));
+});
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>

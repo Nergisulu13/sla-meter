@@ -9,7 +9,6 @@ namespace SlaMonitor.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     public class DowntimesController : ControllerBase
     {
         private readonly AppDbContext _db;
@@ -20,6 +19,10 @@ namespace SlaMonitor.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(
+            AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme,
+            Policy = "DowntimesRead"
+        )]
         public async Task<IActionResult> Get()
         {
             var items = await _db.Downtimes
@@ -30,6 +33,10 @@ namespace SlaMonitor.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(
+            AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme,
+            Policy = "DowntimesWrite"
+        )]
         public async Task<IActionResult> Create([FromBody] DowntimeRecord dto)
         {
             dto.Id = Guid.NewGuid();
@@ -39,6 +46,10 @@ namespace SlaMonitor.Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(
+            AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme,
+            Policy = "DowntimesWrite"
+        )]
         public async Task<IActionResult> Update(Guid id, [FromBody] DowntimeRecord dto)
         {
             var item = await _db.Downtimes.FindAsync(id);
@@ -55,6 +66,10 @@ namespace SlaMonitor.Api.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(
+            AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme,
+            Policy = "DowntimesDelete"
+        )]
         public async Task<IActionResult> Delete(Guid id)
         {
             var item = await _db.Downtimes.FindAsync(id);
