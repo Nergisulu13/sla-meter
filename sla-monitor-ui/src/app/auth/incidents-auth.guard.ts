@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 export const incidentsAuthGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
 
-  if (auth.isLoggedIn()) {
+  if (auth.getAccessToken()) {
     return true;
   }
 

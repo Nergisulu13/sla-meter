@@ -50,10 +50,14 @@ namespace SlaMonitor.Auth.Controllers
         }
 
         [HttpGet("/account/logout")]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout(string? returnUrl = null)
         {
-            await _signInManager.SignOutAsync();
-            return Redirect("/account/login");
-        }
+    await _signInManager.SignOutAsync();
+
+        if (!string.IsNullOrWhiteSpace(returnUrl))
+        return Redirect($"/account/login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+
+       return Redirect("/account/login");
+      }
     }
 }

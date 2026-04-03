@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './auth/auth.service';
 
 @Component({
@@ -10,9 +10,11 @@ import { AuthService } from './auth/auth.service';
   styleUrl: './app.scss'
 })
 export class App {
-  auth = inject(AuthService);
+  private auth = inject(AuthService);
+  private router = inject(Router);
 
   logout() {
-    this.auth.logout();
+    const currentUrl = this.router.url || '/incidents';
+    this.auth.logout(currentUrl);
   }
 }

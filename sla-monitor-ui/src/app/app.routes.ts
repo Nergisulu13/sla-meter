@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { incidentsAuthGuard } from './auth/incidents-auth.guard';
 import { AuthCallbackComponent } from './auth/auth-callback.component';
+import { LoggedOutComponent } from './auth/logged-out.component';
 
 export const routes: Routes = [
   {
@@ -17,6 +18,10 @@ export const routes: Routes = [
   {
     path: 'auth/callback',
     component: AuthCallbackComponent
+  },
+  {
+    path: 'logged-out',
+    component: LoggedOutComponent
   },
   {
     path: '',

@@ -13,7 +13,24 @@ export class AuthService {
   private readonly redirectUri = 'http://localhost:4200/auth/callback';
   private readonly scope = 'openid profile incidents_api offline_access';
 
-  login(returnUrl: string = '/incidents') {
+  login(returnUrl: string = '/incidents', forceLogin: boolean = false) {
+    localStorage.setItem('return_url', returnUrl);
+
+    let authUrl =
+      `${this.authBaseUrl}/connect/authorize` +
+      `?client_id=${encodeURIComponent(this.clientId)}` +
+      `&response_type=code` +
+      `&scope=${encodeURIComponent(this.scope)}` +
+      `&redirect_uri=${encodeURIComponent(this.redirectUri)}`;
+
+    if (forceLogin) {
+      authUrl += `&prompt=login&max_age=0`;
+    }
+
+    window.location.href = authUrl;
+  }
+
+  goToLoginPage(returnUrl: string = '/incidents') {
     localStorage.setItem('return_url', returnUrl);
 
     const authUrl =
@@ -21,7 +38,8 @@ export class AuthService {
       `?client_id=${encodeURIComponent(this.clientId)}` +
       `&response_type=code` +
       `&scope=${encodeURIComponent(this.scope)}` +
-      `&redirect_uri=${encodeURIComponent(this.redirectUri)}`;
+      `&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
+      `&prompt=login&max_age=0`;
 
     window.location.href = authUrl;
   }
@@ -91,6 +109,10 @@ export class AuthService {
     return localStorage.getItem('return_url') || '/incidents';
   }
 
+  setReturnUrl(url: string) {
+    localStorage.setItem('return_url', url);
+  }
+
   clearReturnUrl() {
     localStorage.removeItem('return_url');
   }
@@ -100,9 +122,16 @@ export class AuthService {
     localStorage.removeItem('refresh_token');
   }
 
-  logout() {
+  logout(returnUrl: string = '/incidents') {
     this.clearTokens();
-    localStorage.removeItem('return_url');
-    window.location.href = `${this.authBaseUrl}/account/logout`;
+    this.setReturnUrl(returnUrl);
+
+    const afterLogoutUrl = `${window.location.origin}/logged-out`;
+
+    const logoutUrl =
+      `${this.authBaseUrl}/account/logout` +
+      `?returnUrl=${encodeURIComponent(afterLogoutUrl)}`;
+
+    window.location.href = logoutUrl;
   }
 }

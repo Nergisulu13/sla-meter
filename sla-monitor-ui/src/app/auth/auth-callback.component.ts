@@ -18,7 +18,8 @@ export class AuthCallbackComponent implements OnInit {
     const code = this.route.snapshot.queryParamMap.get('code');
 
     if (!code) {
-      await this.router.navigateByUrl('/dashboard');
+      const returnUrl = this.auth.getReturnUrl();
+      await this.router.navigateByUrl(returnUrl || '/incidents');
       return;
     }
 
@@ -32,8 +33,11 @@ export class AuthCallbackComponent implements OnInit {
     } catch (error) {
       console.error('Token alma hatası:', error);
       this.auth.clearTokens();
+
+      const returnUrl = this.auth.getReturnUrl();
       this.auth.clearReturnUrl();
-      await this.router.navigateByUrl('/dashboard');
+
+      this.auth.goToLoginPage(returnUrl || '/incidents');
     }
   }
 }

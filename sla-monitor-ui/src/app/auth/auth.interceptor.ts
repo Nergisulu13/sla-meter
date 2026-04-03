@@ -6,16 +6,15 @@ import { AuthService } from './auth.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
 
-  const protectedUrls = ['/api/Downtimes', '/api/downtimes'];
-  const isProtectedRequest = protectedUrls.some(url => req.url.includes(url));
-
   const isAuthEndpoint =
     req.url.includes('/connect/token') ||
     req.url.includes('/connect/authorize') ||
+    req.url.includes('/account/login') ||
     req.url.includes('/account/logout');
 
-  let authReq = req;
+  const isProtectedRequest = req.url.includes('/api/');
 
+  let authReq = req;
   const token = auth.getAccessToken();
 
   if (isProtectedRequest && !isAuthEndpoint && token) {
@@ -30,10 +29,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && isProtectedRequest) {
         const refreshToken = auth.getRefreshToken();
+        const currentUrl = window.location.pathname || '/incidents';
 
         if (!refreshToken) {
           auth.clearTokens();
-          auth.login('/incidents');
+          auth.login(currentUrl, true);
           return throwError(() => error);
         }
 
@@ -41,7 +41,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap((res: any) => {
             if (!res?.access_token) {
               auth.clearTokens();
-              auth.login('/incidents');
+              auth.login(currentUrl, true);
               return throwError(() => error);
             }
 
@@ -61,7 +61,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           }),
           catchError((refreshError) => {
             auth.clearTokens();
-            auth.login('/incidents');
+            auth.login(currentUrl, true);
             return throwError(() => refreshError);
           })
         );
