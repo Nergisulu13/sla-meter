@@ -37,7 +37,7 @@ export class AuthCallbackComponent implements OnInit {
       const returnUrl = this.auth.getReturnUrl();
       this.auth.clearReturnUrl();
 
-      this.auth.goToLoginPage(returnUrl || '/incidents');
+      this.auth.login(returnUrl || '/incidents', true);
     }
   }
 }

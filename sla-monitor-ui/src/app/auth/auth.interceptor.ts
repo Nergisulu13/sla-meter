@@ -13,11 +13,52 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/account/logout');
 
   const isProtectedRequest = req.url.includes('/api/');
+  const currentUrl = window.location.pathname || '/incidents';
+
+  if (!isProtectedRequest || isAuthEndpoint) {
+    return next(req);
+  }
+
+  const token = auth.getAccessToken();
+  const refreshToken = auth.getRefreshToken();
+
+  if (token && auth.isTokenExpired(token)) {
+    if (!refreshToken) {
+      auth.forceLogin(currentUrl);
+      return throwError(() => new Error('No refresh token'));
+    }
+
+    return auth.refreshToken().pipe(
+      switchMap((res: any) => {
+        if (!res?.access_token) {
+          auth.forceLogin(currentUrl);
+          return throwError(() => new Error('Refresh failed'));
+        }
+
+        localStorage.setItem('access_token', res.access_token);
+
+        if (res.refresh_token) {
+          localStorage.setItem('refresh_token', res.refresh_token);
+        }
+
+        const refreshedReq = req.clone({
+          setHeaders: {
+            Authorization: `Bearer ${res.access_token}`
+          }
+        });
+
+        return next(refreshedReq);
+      }),
+      catchError((refreshError) => {
+        auth.forceLogin(currentUrl);
+        return throwError(() => refreshError);
+      })
+    );
+  }
 
   let authReq = req;
-  const token = auth.getAccessToken();
 
-  if (isProtectedRequest && !isAuthEndpoint && token) {
+  if (token && !auth.isTokenExpired(token)) {
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -27,47 +68,43 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && isProtectedRequest) {
-        const refreshToken = auth.getRefreshToken();
-        const currentUrl = window.location.pathname || '/incidents';
-
-        if (!refreshToken) {
-          auth.clearTokens();
-          auth.login(currentUrl, true);
-          return throwError(() => error);
-        }
-
-        return auth.refreshToken().pipe(
-          switchMap((res: any) => {
-            if (!res?.access_token) {
-              auth.clearTokens();
-              auth.login(currentUrl, true);
-              return throwError(() => error);
-            }
-
-            localStorage.setItem('access_token', res.access_token);
-
-            if (res.refresh_token) {
-              localStorage.setItem('refresh_token', res.refresh_token);
-            }
-
-            const retryReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${res.access_token}`
-              }
-            });
-
-            return next(retryReq);
-          }),
-          catchError((refreshError) => {
-            auth.clearTokens();
-            auth.login(currentUrl, true);
-            return throwError(() => refreshError);
-          })
-        );
+      if (error.status !== 401) {
+        return throwError(() => error);
       }
 
-      return throwError(() => error);
+      const latestRefreshToken = auth.getRefreshToken();
+
+      if (!latestRefreshToken) {
+        auth.forceLogin(currentUrl);
+        return throwError(() => error);
+      }
+
+      return auth.refreshToken().pipe(
+        switchMap((res: any) => {
+          if (!res?.access_token) {
+            auth.forceLogin(currentUrl);
+            return throwError(() => error);
+          }
+
+          localStorage.setItem('access_token', res.access_token);
+
+          if (res.refresh_token) {
+            localStorage.setItem('refresh_token', res.refresh_token);
+          }
+
+          const retryReq = req.clone({
+            setHeaders: {
+              Authorization: `Bearer ${res.access_token}`
+            }
+          });
+
+          return next(retryReq);
+        }),
+        catchError((refreshError) => {
+          auth.forceLogin(currentUrl);
+          return throwError(() => refreshError);
+        })
+      );
     })
   );
 };

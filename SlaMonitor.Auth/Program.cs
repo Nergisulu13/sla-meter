@@ -56,8 +56,10 @@ builder.Services.AddOpenIddict()
             OpenIddictConstants.Scopes.OfflineAccess,
             "incidents_api");
 
-        options.SetAccessTokenLifetime(TimeSpan.FromMinutes(1));
-        options.SetRefreshTokenLifetime(TimeSpan.FromMinutes(10));
+        options.SetAccessTokenLifetime(TimeSpan.FromSeconds(30));
+        options.SetRefreshTokenLifetime(TimeSpan.FromSeconds(60));
+
+          options.DisableRollingRefreshTokens();
 
         options.AddDevelopmentEncryptionCertificate()
                .AddDevelopmentSigningCertificate();

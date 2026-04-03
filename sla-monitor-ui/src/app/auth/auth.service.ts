@@ -30,20 +30,6 @@ export class AuthService {
     window.location.href = authUrl;
   }
 
-  goToLoginPage(returnUrl: string = '/incidents') {
-    localStorage.setItem('return_url', returnUrl);
-
-    const authUrl =
-      `${this.authBaseUrl}/connect/authorize` +
-      `?client_id=${encodeURIComponent(this.clientId)}` +
-      `&response_type=code` +
-      `&scope=${encodeURIComponent(this.scope)}` +
-      `&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
-      `&prompt=login&max_age=0`;
-
-    window.location.href = authUrl;
-  }
-
   async exchangeCodeForToken(code: string): Promise<void> {
     const body = new URLSearchParams();
     body.set('grant_type', 'authorization_code');
@@ -93,10 +79,6 @@ export class AuthService {
     );
   }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('access_token');
-  }
-
   getAccessToken(): string | null {
     return localStorage.getItem('access_token');
   }
@@ -120,6 +102,54 @@ export class AuthService {
   clearTokens() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+  }
+
+  private parseJwt(token: string): any | null {
+    try {
+      const payload = token.split('.')[1];
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = normalized.padEnd(
+        normalized.length + (4 - normalized.length % 4) % 4,
+        '='
+      );
+      const decoded = atob(padded);
+      return JSON.parse(decoded);
+    } catch {
+      return null;
+    }
+  }
+
+  isTokenExpired(token: string | null, offsetSeconds: number = 10): boolean {
+    if (!token) return true;
+
+    const payload = this.parseJwt(token);
+    if (!payload?.exp) return true;
+
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp <= now + offsetSeconds;
+  }
+
+  isAccessTokenValid(): boolean {
+    const token = this.getAccessToken();
+    return !!token && !this.isTokenExpired(token);
+  }
+
+  hasRefreshToken(): boolean {
+    return !!this.getRefreshToken();
+  }
+
+  hasSession(): boolean {
+    return this.isAccessTokenValid() || this.hasRefreshToken();
+  }
+
+  isLoggedIn(): boolean {
+    return this.hasSession();
+  }
+
+  forceLogin(returnUrl: string = '/incidents') {
+    this.clearTokens();
+    this.setReturnUrl(returnUrl);
+    this.login(returnUrl, true);
   }
 
   logout(returnUrl: string = '/incidents') {
