@@ -87,6 +87,14 @@ export class AuthService {
     return localStorage.getItem('refresh_token');
   }
 
+  hasAccessToken(): boolean {
+    return !!this.getAccessToken();
+  }
+
+  hasRefreshToken(): boolean {
+    return !!this.getRefreshToken();
+  }
+
   getReturnUrl(): string {
     return localStorage.getItem('return_url') || '/incidents';
   }
@@ -102,48 +110,6 @@ export class AuthService {
   clearTokens() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-  }
-
-  private parseJwt(token: string): any | null {
-    try {
-      const payload = token.split('.')[1];
-      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-      const padded = normalized.padEnd(
-        normalized.length + (4 - normalized.length % 4) % 4,
-        '='
-      );
-      const decoded = atob(padded);
-      return JSON.parse(decoded);
-    } catch {
-      return null;
-    }
-  }
-
-  isTokenExpired(token: string | null, offsetSeconds: number = 10): boolean {
-    if (!token) return true;
-
-    const payload = this.parseJwt(token);
-    if (!payload?.exp) return true;
-
-    const now = Math.floor(Date.now() / 1000);
-    return payload.exp <= now + offsetSeconds;
-  }
-
-  isAccessTokenValid(): boolean {
-    const token = this.getAccessToken();
-    return !!token && !this.isTokenExpired(token);
-  }
-
-  hasRefreshToken(): boolean {
-    return !!this.getRefreshToken();
-  }
-
-  hasSession(): boolean {
-    return this.isAccessTokenValid() || this.hasRefreshToken();
-  }
-
-  isLoggedIn(): boolean {
-    return this.hasSession();
   }
 
   forceLogin(returnUrl: string = '/incidents') {

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Identity;
+using OpenIddict.Abstractions;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 using SlaMonitor.Auth.Models;
 
 namespace SlaMonitor.Auth
@@ -9,6 +11,7 @@ namespace SlaMonitor.Auth
         {
             var userManager = services.GetRequiredService<UserManager<AuthUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            var appManager = services.GetRequiredService<IOpenIddictApplicationManager>();
 
             string[] roles = { "Admin", "Operator", "Viewer" };
 
@@ -23,6 +26,9 @@ namespace SlaMonitor.Auth
             await CreateUserAsync(userManager, "admin", "Admin123!", "Admin");
             await CreateUserAsync(userManager, "operator", "Operator123!", "Operator");
             await CreateUserAsync(userManager, "viewer", "Viewer123!", "Viewer");
+
+            // 🔥 BURASI ÇOK KRİTİK
+            await CreateClientApplicationAsync(appManager);
         }
 
         private static async Task CreateUserAsync(
@@ -61,6 +67,43 @@ namespace SlaMonitor.Auth
                     throw new Exception($"{username} kullanıcısına {role} rolü atanamadı: {errors}");
                 }
             }
+        }
+
+        private static async Task CreateClientApplicationAsync(IOpenIddictApplicationManager appManager)
+        {
+            const string clientId = "sla-angular";
+
+            var existingApp = await appManager.FindByClientIdAsync(clientId);
+            if (existingApp != null)
+            {
+                return;
+            }
+
+            await appManager.CreateAsync(new OpenIddictApplicationDescriptor
+            {
+                ClientId = clientId,
+                ConsentType = ConsentTypes.Implicit,
+                DisplayName = "SLA Angular UI",
+                RedirectUris =
+                {
+                    new Uri("http://localhost:4200/auth/callback")
+                },
+                Permissions =
+                {
+                    Permissions.Endpoints.Authorization,
+                    Permissions.Endpoints.Token,
+
+                    Permissions.GrantTypes.AuthorizationCode,
+                    Permissions.GrantTypes.RefreshToken,
+
+                    Permissions.ResponseTypes.Code,
+
+                    Permissions.Prefixes.Scope + Scopes.OpenId,
+                    Permissions.Prefixes.Scope + Scopes.Profile,
+                    Permissions.Prefixes.Scope + Scopes.OfflineAccess,
+                    Permissions.Prefixes.Scope + "incidents_api"
+                }
+            });
         }
     }
 }

@@ -60,6 +60,7 @@ builder.Services.AddOpenIddict()
         options.SetRefreshTokenLifetime(TimeSpan.FromSeconds(60));
 
           options.DisableRollingRefreshTokens();
+          options.DisableSlidingRefreshTokenExpiration();
 
         options.AddDevelopmentEncryptionCertificate()
                .AddDevelopmentSigningCertificate();
