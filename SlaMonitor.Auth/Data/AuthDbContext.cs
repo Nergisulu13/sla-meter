@@ -10,6 +10,8 @@ public class AuthDbContext : IdentityDbContext<AuthUser>
     {
     }
 
+    public DbSet<Tenant> Tenants => Set<Tenant>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

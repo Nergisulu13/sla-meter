@@ -10,6 +10,7 @@ type EnvironmentSlaCard = {
   downtimeMinutes: number;
   allowedDowntimeMinutes: number;
   points: number;
+  incidentCount: number;
 };
 
 type DashboardDto = {
@@ -37,26 +38,84 @@ export class DashboardComponent {
   loading = false;
   error = '';
 
+  userRole = '';
+  userTenant = '';
+
   ngOnInit() {
+    this.loadUserInfo();
     this.refresh();
 
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => {
         if (e.urlAfterRedirects.startsWith('/dashboard')) {
+          this.loadUserInfo();
           this.refresh();
         }
       });
   }
 
-  getSlaBarGradient(sla: number): string {
-    if (sla >= 99.99) {
-      return 'linear-gradient(90deg, #22c55e, #10b981)';
+  private loadUserInfo() {
+    const token = localStorage.getItem('access_token');
+    this.userRole = '';
+    this.userTenant = '';
+
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+
+      this.userRole =
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+        payload['role'] ||
+        '';
+
+      this.userTenant = payload['tenant_name'] || '';
+    } catch (e) {
+      console.error('Token parse edilemedi', e);
     }
-    if (sla >= 99.95) {
-      return 'linear-gradient(90deg, #f59e0b, #f97316)';
+  }
+
+  getVisibleCards(): EnvironmentSlaCard[] {
+    if (!this.data?.environmentCards?.length) return [];
+
+    if (!this.userTenant || this.userTenant === 'ALL') {
+      return this.data.environmentCards;
     }
-    return 'linear-gradient(90deg, #ef4444, #dc2626)';
+
+    return this.data.environmentCards.filter(
+      (x) => this.normalizeEnv(x.environment) === this.normalizeEnv(this.userTenant)
+    );
+  }
+
+  getVisibleAverageSla(): number {
+    const cards = this.getVisibleCards();
+    if (!cards.length) return 0;
+
+    const total = cards.reduce((sum, x) => sum + Number(x.slaPercent || 0), 0);
+    return +(total / cards.length).toFixed(2);
+  }
+
+  getVisibleAveragePoints(): number {
+    const cards = this.getVisibleCards();
+    if (!cards.length) return 0;
+
+    const total = cards.reduce((sum, x) => sum + Number(x.points || 0), 0);
+    return +(total / cards.length).toFixed(2);
+  }
+
+  getVisibleDowntimeMinutes(): number {
+    const cards = this.getVisibleCards();
+    if (!cards.length) return 0;
+
+    return cards.reduce((sum, x) => sum + Number(x.downtimeMinutes || 0), 0);
+  }
+
+  getVisibleDowntimeCount(): number {
+    const cards = this.getVisibleCards();
+    if (!cards.length) return 0;
+
+    return cards.reduce((sum, x) => sum + Number(x.incidentCount || 0), 0);
   }
 
   private normalizeEnv(value: string | null | undefined): string {
@@ -79,6 +138,10 @@ export class DashboardComponent {
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.src = '/eclit.png';
+  }
+
+  trackByEnvironment(_: number, item: EnvironmentSlaCard): string {
+    return item.environment;
   }
 
   private refresh() {

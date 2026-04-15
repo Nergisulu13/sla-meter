@@ -477,6 +477,28 @@
   color: #0f172a;
   margin-right: 4px;
 }
+.user-info {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge.role {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge.tenant {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
 
 .sort-select {
   height: 40px;

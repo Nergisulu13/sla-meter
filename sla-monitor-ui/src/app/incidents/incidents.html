@@ -3,6 +3,11 @@
     {{ toast.message }}
   </div>
 
+  <div class="user-info" *ngIf="userRole">
+    <span class="badge role">{{ userRole }}</span>
+    <span class="badge tenant">{{ userTenant }}</span>
+  </div>
+
   <div class="search-wrap">
     <div class="search-icon">⌕</div>
     <input

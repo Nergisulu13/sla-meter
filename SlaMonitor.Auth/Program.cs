@@ -59,8 +59,8 @@ builder.Services.AddOpenIddict()
         options.SetAccessTokenLifetime(TimeSpan.FromSeconds(30));
         options.SetRefreshTokenLifetime(TimeSpan.FromSeconds(60));
 
-          options.DisableRollingRefreshTokens();
-          options.DisableSlidingRefreshTokenExpiration();
+        options.DisableRollingRefreshTokens();
+        options.DisableSlidingRefreshTokenExpiration();
 
         options.AddDevelopmentEncryptionCertificate()
                .AddDevelopmentSigningCertificate();
@@ -80,6 +80,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+
+    // Migration ile gittiğimiz için bunu bırakıyoruz.
     db.Database.EnsureCreated();
 
     await IdentitySeed.SeedAsync(scope.ServiceProvider);

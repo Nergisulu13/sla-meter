@@ -5,7 +5,8 @@ public record EnvironmentSlaCard(
     double SlaPercent,
     int DowntimeMinutes,
     int AllowedDowntimeMinutes,
-    int Points
+    int Points,
+    int IncidentCount
 );
 
 public record DashboardDto(

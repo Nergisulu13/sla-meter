@@ -18,30 +18,6 @@ body {
   margin: 0 auto;
 }
 
-/* HERO */
-
-.hero {
-  position: relative;
-  margin-bottom: 24px;
-  border-radius: 30px;
-  padding: 34px 34px 30px;
-  background:
-    radial-gradient(circle at 85% 20%, rgba(99,102,241,0.22), transparent 18%),
-    radial-gradient(circle at 20% 0%, rgba(59,130,246,0.12), transparent 24%),
-    linear-gradient(135deg, #0b1220 0%, #0f172a 45%, #1e293b 100%);
-  box-shadow:
-    0 24px 60px rgba(15,23,42,0.16),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-.hero-content h1 {
-  margin: 0;
-  font-size: 42px;
-  font-weight: 900;
-  letter-spacing: -1.4px;
-  color: #fff;
-}
-
 /* ALERT */
 
 .alert {
@@ -53,6 +29,27 @@ body {
   color: #b91c1c;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* SCOPE */
+
+.scope-banner {
+  margin-bottom: 18px;
+  padding: 13px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(203, 213, 225, 0.85);
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255,255,255,0.65);
+  backdrop-filter: blur(10px);
+}
+
+.scope-banner strong {
+  color: #0f172a;
 }
 
 /* SUMMARY */
@@ -168,7 +165,27 @@ body {
   gap: 18px;
 }
 
-/* ENVIRONMENT CARDS */
+/* TEK KART VARSA ORTALA */
+
+.grid:has(.card:only-child) {
+  display: flex;
+  justify-content: center;
+}
+
+.grid:has(.card:only-child) .card {
+  max-width: 560px;
+  width: 100%;
+  min-height: 290px;
+  box-shadow:
+    0 32px 70px rgba(2,6,23,0.12),
+    0 10px 24px rgba(2,6,23,0.08);
+}
+
+.grid:has(.card:only-child) .card:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+/* CARD */
 
 .card {
   position: relative;
@@ -180,10 +197,12 @@ body {
     0 20px 40px rgba(2,6,23,0.05),
     0 2px 6px rgba(2,6,23,0.04);
   overflow: hidden;
+  min-height: 238px;
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    border-color 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .card::before {
@@ -206,9 +225,17 @@ body {
 .card-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
+  margin-bottom: 10px;
 }
+
+.card-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* NAME */
 
 .name-wrap {
   display: flex;
@@ -219,6 +246,13 @@ body {
 
 .name-block {
   min-width: 0;
+}
+
+.name {
+  font-weight: 800;
+  font-size: 17px;
+  color: #020617;
+  line-height: 1.2;
 }
 
 /* ENV MARK */
@@ -244,20 +278,6 @@ body {
   display: block;
 }
 
-/* TITLE */
-
-.name {
-  font-weight: 800;
-  font-size: 17px;
-  color: #020617;
-  line-height: 1.2;
-}
-
-.name-sub {
-  font-size: 11px;
-  color: #64748b;
-}
-
 /* BADGE */
 
 .badge {
@@ -269,7 +289,7 @@ body {
   border: 1px solid transparent;
 }
 
-/* SLA */
+/* ACTIVE CARD CONTENT */
 
 .sla {
   margin: 16px 0 18px;
@@ -284,7 +304,9 @@ body {
   line-height: 1;
 }
 
-/* METRICS */
+.grid:has(.card:only-child) .sla-value {
+  font-size: 48px;
+}
 
 .metric-list {
   display: flex;
@@ -445,20 +467,15 @@ body {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .grid:has(.card:only-child) {
+    display: flex;
+  }
 }
 
 @media (max-width: 640px) {
   .page {
     padding: 18px;
-  }
-
-  .hero {
-    padding: 24px 20px;
-    border-radius: 22px;
-  }
-
-  .hero-content h1 {
-    font-size: 30px;
   }
 
   .summary,
@@ -472,6 +489,10 @@ body {
 
   .sla-value {
     font-size: 29px;
+  }
+
+  .grid:has(.card:only-child) .sla-value {
+    font-size: 38px;
   }
 
   .card-top {

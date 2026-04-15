@@ -1,6 +1,11 @@
 <div class="page">
   <div *ngIf="error" class="alert">{{ error }}</div>
 
+  <div class="scope-banner" *ngIf="userTenant && userTenant !== 'ALL'">
+    Viewing access scope:
+    <strong>{{ userTenant }}</strong>
+  </div>
+
   <ng-container *ngIf="loading; else content">
     <div class="summary">
       <div class="stat stat-primary skeleton"></div>
@@ -23,8 +28,10 @@
             <div class="label">Ortalama SLA</div>
             <div class="stat-icon blue"></div>
           </div>
-          <div class="value">%{{ data.averageSlaPercent }}</div>
-          <div class="sub">Tüm ortamlar</div>
+          <div class="value">%{{ getVisibleAverageSla() }}</div>
+          <div class="sub">
+            {{ userTenant && userTenant !== 'ALL' ? userTenant : 'Tüm ortamlar' }}
+          </div>
         </div>
 
         <div class="stat stat-secondary">
@@ -32,7 +39,7 @@
             <div class="label">Ortalama Puan</div>
             <div class="stat-icon purple"></div>
           </div>
-          <div class="value">{{ data.averagePoints }}</div>
+          <div class="value">{{ getVisibleAveragePoints() }}</div>
           <div class="sub">Skor</div>
         </div>
 
@@ -41,8 +48,8 @@
             <div class="label">Toplam Kesinti</div>
             <div class="stat-icon pink"></div>
           </div>
-          <div class="value">{{ data.totalDowntimeMinutes }} dk</div>
-          <div class="sub">{{ data.totalDowntimeCount }} kayıt</div>
+          <div class="value">{{ getVisibleDowntimeMinutes() }} dk</div>
+          <div class="sub">{{ getVisibleDowntimeCount() }} kayıt</div>
         </div>
       </div>
 
@@ -53,7 +60,10 @@
       </div>
 
       <div class="grid">
-        <div class="card" *ngFor="let c of data.environmentCards">
+        <div
+          class="card"
+          *ngFor="let c of getVisibleCards(); trackBy: trackByEnvironment"
+        >
           <div class="card-top">
             <div class="name-wrap">
               <div class="env-mark">
@@ -69,17 +79,26 @@
               </div>
             </div>
 
-            <div class="badge">{{ c.points }} puan</div>
+            <div class="badge">
+              {{ c.points }} puan
+            </div>
           </div>
 
-          <div class="sla">
-            <div class="sla-value">%{{ c.slaPercent }}</div>
-          </div>
+          <div class="card-body">
+            <div class="sla">
+              <div class="sla-value">%{{ c.slaPercent }}</div>
+            </div>
 
-          <div class="metric-list">
-            <div class="row">
-              <span>Kesinti Süresi</span>
-              <b>{{ c.downtimeMinutes }} dk</b>
+            <div class="metric-list">
+              <div class="row">
+                <span>Kesinti Süresi</span>
+                <b>{{ c.downtimeMinutes }} dk</b>
+              </div>
+
+              <div class="row">
+                <span>Kesinti Sayısı</span>
+                <b>{{ c.incidentCount }}</b>
+              </div>
             </div>
           </div>
         </div>

@@ -29,21 +29,24 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("DowntimesRead", policy =>
         policy.RequireAuthenticatedUser()
-              .RequireClaim(
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
-                  "Admin", "Operator", "Viewer"));
+              .RequireAssertion(ctx =>
+                  ctx.User.Claims.Any(c =>
+                      (c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" || c.Type == "role") &&
+                      (c.Value == "Admin" || c.Value == "Operator" || c.Value == "Viewer" || c.Value == "SuperAdmin"))));
 
     options.AddPolicy("DowntimesWrite", policy =>
         policy.RequireAuthenticatedUser()
-              .RequireClaim(
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
-                  "Admin", "Operator"));
+              .RequireAssertion(ctx =>
+                  ctx.User.Claims.Any(c =>
+                      (c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" || c.Type == "role") &&
+                      (c.Value == "Admin" || c.Value == "Operator" || c.Value == "SuperAdmin"))));
 
     options.AddPolicy("DowntimesDelete", policy =>
         policy.RequireAuthenticatedUser()
-              .RequireClaim(
-                  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
-                  "Admin"));
+              .RequireAssertion(ctx =>
+                  ctx.User.Claims.Any(c =>
+                      (c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" || c.Type == "role") &&
+                      (c.Value == "Admin" || c.Value == "SuperAdmin"))));
 });
 
 builder.Services.AddOpenIddict()

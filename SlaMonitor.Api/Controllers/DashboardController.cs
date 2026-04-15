@@ -55,9 +55,10 @@ namespace SlaMonitor.Api.Controllers
 
             foreach (var env in Environments)
             {
-                int envMinutes = all
-                    .Where(x => x.Environment == env)
-                    .Sum(x => x.DurationMinutes);
+                var envRecords = all.Where(x => x.Environment == env).ToList();
+
+                int envMinutes = envRecords.Sum(x => x.DurationMinutes);
+                int envCount = envRecords.Count;
 
                 double sla = CalcSlaPercent(envMinutes, minutesInPeriod);
 
@@ -71,7 +72,8 @@ namespace SlaMonitor.Api.Controllers
                     SlaPercent: sla,
                     DowntimeMinutes: envMinutes,
                     AllowedDowntimeMinutes: allowedMinutes,
-                    Points: points
+                    Points: points,
+                    IncidentCount: envCount
                 ));
             }
 

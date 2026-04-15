@@ -39,10 +39,15 @@ export class IncidentsComponent {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 
+  userRole = '';
+  userTenant = '';
+
   private readonly customersStorageKey = 'sla-customers-suggestions';
   private readonly reasonsStorageKey = 'sla-reasons-suggestions';
 
-  environments = ['Eclit', 'Paris', 'Huawei', 'Ohio', 'UAE', 'Preprod Ireland'];
+  allEnvironments = ['Eclit', 'Paris', 'Huawei', 'Ohio', 'UAE', 'Preprod Ireland'];
+  environments: string[] = [];
+
   customersSuggestions = ['Arçelik', 'Vestel', 'THY', 'aws', 'Genesys'];
   reasonSuggestions = ['IVR Client', 'Deployment', 'Network', 'DB latency', 'Timeout'];
 
@@ -101,9 +106,47 @@ export class IncidentsComponent {
   };
 
   ngOnInit() {
+    this.loadUserInfo();
     this.loadSuggestionsFromStorage();
     this.refresh();
     this.updateCreateValid();
+  }
+
+  private loadUserInfo() {
+    const token = localStorage.getItem('access_token');
+
+    this.environments = [...this.allEnvironments];
+
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+
+      this.userRole =
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+        payload['role'] ||
+        '';
+
+      this.userTenant = payload['tenant_name'] || '';
+
+      // Sadece gerçek bir environment ise kilitle.
+      // SuperAdmin için gelen "ALL" değeri environment olarak zorlanmamalı.
+      if (
+        this.userTenant &&
+        this.userTenant !== 'ALL' &&
+        this.allEnvironments.includes(this.userTenant)
+      ) {
+        this.environments = [this.userTenant];
+        this.createModel.environment = this.userTenant;
+        this.editModel.environment = this.userTenant;
+      } else {
+        this.environments = [...this.allEnvironments];
+        this.createModel.environment = '';
+        this.editModel.environment = '';
+      }
+    } catch (e) {
+      console.error('Token parse edilemedi', e);
+    }
   }
 
   @HostListener('document:click')
@@ -115,6 +158,14 @@ export class IncidentsComponent {
   }
 
   onFormChange() {
+    // Sadece tenant'a sabit kullanıcılar için environment otomatik set edilsin.
+    if (this.userTenant && this.userTenant !== 'ALL') {
+      this.createModel.environment = this.userTenant;
+      if (this.editingId) {
+        this.editModel.environment = this.userTenant;
+      }
+    }
+
     this.updateCreateValid();
     this.cdr.detectChanges();
   }
@@ -406,7 +457,8 @@ export class IncidentsComponent {
 
   cancelCreate() {
     this.createModel = {
-      environment: '',
+      environment:
+        this.userTenant && this.userTenant !== 'ALL' ? this.userTenant : '',
       durationMinutes: 5,
       occurredAt: this.toDatetimeLocal(new Date()),
       customersSelected: [],
@@ -426,7 +478,10 @@ export class IncidentsComponent {
     this.cdr.detectChanges();
 
     const payload: CreateDowntime = {
-      environment: this.createModel.environment,
+      environment:
+        this.userTenant && this.userTenant !== 'ALL'
+          ? this.userTenant
+          : this.createModel.environment,
       durationMinutes: Number(this.createModel.durationMinutes),
       occurredAt: new Date(this.createModel.occurredAt).toISOString(),
       customers: this.joinMulti(this.createModel.customersSelected),
@@ -460,7 +515,10 @@ export class IncidentsComponent {
     this.error = '';
 
     this.editModel = {
-      environment: r.environment,
+      environment:
+        this.userTenant && this.userTenant !== 'ALL'
+          ? this.userTenant
+          : r.environment,
       durationMinutes: r.durationMinutes,
       occurredAt: this.toDatetimeLocal(r.occurredAt),
       customersSelected: this.parseMulti(r.customers),
@@ -501,7 +559,10 @@ export class IncidentsComponent {
     this.cdr.detectChanges();
 
     const payload: CreateDowntime = {
-      environment: this.editModel.environment,
+      environment:
+        this.userTenant && this.userTenant !== 'ALL'
+          ? this.userTenant
+          : this.editModel.environment,
       durationMinutes: Number(this.editModel.durationMinutes),
       occurredAt: new Date(this.editModel.occurredAt).toISOString(),
       customers: this.joinMulti(this.editModel.customersSelected),
