@@ -52,7 +52,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
     {
-        options.SetIssuer("http://localhost:5183");
+        options.SetIssuer("http://sla-auth:8080/");
         options.AddAudiences("resource_server");
 
         options.UseSystemNetHttp();

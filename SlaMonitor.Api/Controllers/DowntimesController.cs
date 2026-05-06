@@ -18,14 +18,27 @@ namespace SlaMonitor.Api.Controllers
             _db = db;
         }
 
-        private Guid GetTenantId()
+        private bool TryGetTenantId(out Guid tenantId)
         {
+            tenantId = Guid.Empty;
+
             var tenantClaim = User.Claims.FirstOrDefault(x => x.Type == "tenant_id");
-
             if (tenantClaim == null || string.IsNullOrWhiteSpace(tenantClaim.Value))
-                throw new UnauthorizedAccessException("Tenant bilgisi bulunamadı.");
+                return false;
 
-            return Guid.Parse(tenantClaim.Value);
+            return Guid.TryParse(tenantClaim.Value, out tenantId);
+        }
+
+        private bool TryGetTenantName(out string tenantName)
+        {
+            tenantName = string.Empty;
+
+            var tenantClaim = User.Claims.FirstOrDefault(x => x.Type == "tenant_name");
+            if (tenantClaim == null || string.IsNullOrWhiteSpace(tenantClaim.Value))
+                return false;
+
+            tenantName = tenantClaim.Value;
+            return true;
         }
 
         private bool IsSuperAdmin()
@@ -43,11 +56,13 @@ namespace SlaMonitor.Api.Controllers
         )]
         public async Task<IActionResult> Get()
         {
-            IQueryable<DowntimeRecord> query = _db.Downtimes;
+            IQueryable<DowntimeRecord> query = _db.Downtimes.AsNoTracking();
 
             if (!IsSuperAdmin())
             {
-                var tenantId = GetTenantId();
+                if (!TryGetTenantId(out var tenantId))
+                    return Unauthorized("Tenant bilgisi bulunamadı.");
+
                 query = query.Where(x => x.TenantId == tenantId);
             }
 
@@ -65,17 +80,48 @@ namespace SlaMonitor.Api.Controllers
         )]
         public async Task<IActionResult> Create([FromBody] DowntimeRecord dto)
         {
-            dto.Id = Guid.NewGuid();
+            if (dto == null)
+                return BadRequest("Geçersiz veri gönderildi.");
+
+            if (dto.DurationMinutes < 0)
+                return BadRequest("DurationMinutes negatif olamaz.");
+
+            var entity = new DowntimeRecord
+            {
+                Id = Guid.NewGuid(),
+                DurationMinutes = dto.DurationMinutes,
+                Customers = dto.Customers ?? string.Empty,
+                Reason = dto.Reason ?? string.Empty,
+                OccurredAt = dto.OccurredAt == default ? DateTime.UtcNow : dto.OccurredAt
+            };
 
             if (!IsSuperAdmin())
             {
-                dto.TenantId = GetTenantId();
+                if (!TryGetTenantId(out var tenantId))
+                    return Unauthorized("Tenant bilgisi bulunamadı.");
+
+                if (!TryGetTenantName(out var tenantName))
+                    return Unauthorized("Tenant adı bulunamadı.");
+
+                entity.TenantId = tenantId;
+                entity.Environment = tenantName;
+            }
+            else
+            {
+                if (dto.TenantId == Guid.Empty)
+                    return BadRequest("SuperAdmin için TenantId zorunludur.");
+
+                if (string.IsNullOrWhiteSpace(dto.Environment))
+                    return BadRequest("SuperAdmin için Environment zorunludur.");
+
+                entity.TenantId = dto.TenantId;
+                entity.Environment = dto.Environment;
             }
 
-            _db.Downtimes.Add(dto);
+            _db.Downtimes.Add(entity);
             await _db.SaveChangesAsync();
 
-            return Ok(dto);
+            return Ok(entity);
         }
 
         [HttpPut("{id:guid}")]
@@ -85,30 +131,46 @@ namespace SlaMonitor.Api.Controllers
         )]
         public async Task<IActionResult> Update(Guid id, [FromBody] DowntimeRecord dto)
         {
+            if (dto == null)
+                return BadRequest("Geçersiz veri gönderildi.");
+
+            if (dto.DurationMinutes < 0)
+                return BadRequest("DurationMinutes negatif olamaz.");
+
             var item = await _db.Downtimes.FirstOrDefaultAsync(x => x.Id == id);
             if (item is null)
                 return NotFound();
 
             if (!IsSuperAdmin())
             {
-                var tenantId = GetTenantId();
+                if (!TryGetTenantId(out var tenantId))
+                    return Unauthorized("Tenant bilgisi bulunamadı.");
+
+                if (!TryGetTenantName(out var tenantName))
+                    return Unauthorized("Tenant adı bulunamadı.");
 
                 if (item.TenantId != tenantId)
                     return Forbid();
 
-                dto.TenantId = tenantId;
+                item.TenantId = tenantId;
+                item.Environment = tenantName;
             }
-
-            item.Environment = dto.Environment;
-            item.DurationMinutes = dto.DurationMinutes;
-            item.Customers = dto.Customers;
-            item.Reason = dto.Reason;
-            item.OccurredAt = dto.OccurredAt;
-
-            if (IsSuperAdmin())
+            else
             {
+                if (dto.TenantId == Guid.Empty)
+                    return BadRequest("SuperAdmin için TenantId zorunludur.");
+
+                if (string.IsNullOrWhiteSpace(dto.Environment))
+                    return BadRequest("SuperAdmin için Environment zorunludur.");
+
                 item.TenantId = dto.TenantId;
+                item.Environment = dto.Environment;
             }
+
+            item.DurationMinutes = dto.DurationMinutes;
+            item.Customers = dto.Customers ?? string.Empty;
+            item.Reason = dto.Reason ?? string.Empty;
+            item.OccurredAt = dto.OccurredAt == default ? item.OccurredAt : dto.OccurredAt;
 
             await _db.SaveChangesAsync();
             return Ok(item);
@@ -127,7 +189,8 @@ namespace SlaMonitor.Api.Controllers
 
             if (!IsSuperAdmin())
             {
-                var tenantId = GetTenantId();
+                if (!TryGetTenantId(out var tenantId))
+                    return Unauthorized("Tenant bilgisi bulunamadı.");
 
                 if (item.TenantId != tenantId)
                     return Forbid();

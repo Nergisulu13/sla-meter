@@ -1,10 +1,9 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
-using static OpenIddict.Abstractions.OpenIddictConstants;
 using SlaMonitor.Auth.Data;
 using SlaMonitor.Auth.Models;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SlaMonitor.Auth
 {
@@ -22,140 +21,128 @@ namespace SlaMonitor.Auth
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
-                {
                     await roleManager.CreateAsync(new IdentityRole(role));
-                }
             }
 
             await EnsureTenantsAsync(db);
 
-            var huaweiTenant = await db.Tenants.FirstAsync(x => x.Name == "Huawei");
-
-            await CreateUserAsync(userManager, "admin", "Admin123!", "Admin", huaweiTenant);
-            await CreateUserAsync(userManager, "operator", "Operator123!", "Operator", huaweiTenant);
-            await CreateUserAsync(userManager, "viewer", "Viewer123!", "Viewer", huaweiTenant);
-            await CreateUserAsync(userManager, "admin2", "Admin123!", "SuperAdmin", null);
+            await CreateOrUpdateUserAsync(userManager, "admin", "Admin123!", "Admin");
+            await CreateOrUpdateUserAsync(userManager, "operator", "Operator123!", "Operator");
+            await CreateOrUpdateUserAsync(userManager, "viewer", "Viewer123!", "Viewer");
+            await CreateOrUpdateUserAsync(userManager, "superadmin", "Admin123!", "SuperAdmin");
 
             await CreateClientApplicationAsync(appManager);
         }
 
         private static async Task EnsureTenantsAsync(AuthDbContext db)
         {
-            string[] tenantNames =
+            var tenants = new List<Tenant>
             {
-                "Eclit",
-                "Paris",
-                "Huawei",
-                "Ohio",
-                "UAE",
-                "Preprod Ireland"
+                new() { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "Eclit", DisplayName = "Eclit", IsActive = true },
+                new() { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "Paris", DisplayName = "Paris", IsActive = true },
+                new() { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "Huawei", DisplayName = "Huawei", IsActive = true },
+                new() { Id = Guid.Parse("44444444-4444-4444-4444-444444444444"), Name = "Ohio", DisplayName = "Ohio", IsActive = true },
+                new() { Id = Guid.Parse("55555555-5555-5555-5555-555555555555"), Name = "UAE", DisplayName = "UAE", IsActive = true },
+                new() { Id = Guid.Parse("66666666-6666-6666-6666-666666666666"), Name = "Preprod Ireland", DisplayName = "Preprod Ireland", IsActive = true }
             };
 
-            foreach (var tenantName in tenantNames)
+            foreach (var tenant in tenants)
             {
-                if (!await db.Tenants.AnyAsync(x => x.Name == tenantName))
+                var existing = await db.Tenants.FirstOrDefaultAsync(x => x.Id == tenant.Id);
+
+                if (existing == null)
                 {
-                    db.Tenants.Add(new Tenant
-                    {
-                        Name = tenantName
-                    });
+                    db.Tenants.Add(tenant);
+                }
+                else
+                {
+                    existing.Name = tenant.Name;
+                    existing.DisplayName = tenant.DisplayName;
+                    existing.IsActive = tenant.IsActive;
                 }
             }
 
             await db.SaveChangesAsync();
         }
 
-        private static async Task CreateUserAsync(
+        private static async Task CreateOrUpdateUserAsync(
             UserManager<AuthUser> userManager,
             string username,
             string password,
-            string role,
-            Tenant? tenant)
+            string role)
         {
-            var user = await userManager.FindByNameAsync(username);
+            var email = $"{username}@local.com";
+            var user = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == username);
 
             if (user == null)
             {
                 user = new AuthUser
                 {
                     UserName = username,
-                    Email = $"{username}@local.com",
+                    Email = email,
                     EmailConfirmed = true,
-                    TenantId = tenant?.Id,
-                    Tenant = tenant?.Name ?? "ALL"
+                    TenantId = null
                 };
 
-                var result = await userManager.CreateAsync(user, password);
-
-                if (!result.Succeeded)
+                var createResult = await userManager.CreateAsync(user, password);
+                if (!createResult.Succeeded)
                 {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
                     throw new Exception($"{username} oluşturulamadı: {errors}");
                 }
             }
             else
             {
-                user.TenantId = tenant?.Id;
-                user.Tenant = tenant?.Name ?? "ALL";
+                var changed = false;
 
-                var updateResult = await userManager.UpdateAsync(user);
-
-                if (!updateResult.Succeeded)
+                if (user.TenantId != null)
                 {
-                    var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
-                    throw new Exception($"{username} kullanıcısının tenant bilgisi güncellenemedi: {errors}");
+                    user.TenantId = null;
+                    changed = true;
+                }
+
+                if (user.Email != email)
+                {
+                    user.Email = email;
+                    changed = true;
+                }
+
+                if (!user.EmailConfirmed)
+                {
+                    user.EmailConfirmed = true;
+                    changed = true;
+                }
+
+                if (changed)
+                {
+                    var updateResult = await userManager.UpdateAsync(user);
+                    if (!updateResult.Succeeded)
+                    {
+                        var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
+                        throw new Exception($"{username} güncellenemedi: {errors}");
+                    }
                 }
             }
 
-            if (!await userManager.IsInRoleAsync(user, role))
-            {
-                var roleResult = await userManager.AddToRoleAsync(user, role);
+            var currentRoles = await userManager.GetRolesAsync(user);
 
-                if (!roleResult.Succeeded)
+            if (!currentRoles.Contains(role) || currentRoles.Count != 1)
+            {
+                if (currentRoles.Any())
                 {
-                    var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                    throw new Exception($"{username} kullanıcısına {role} rolü atanamadı: {errors}");
+                    var removeRolesResult = await userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeRolesResult.Succeeded)
+                    {
+                        var errors = string.Join(", ", removeRolesResult.Errors.Select(e => e.Description));
+                        throw new Exception($"{username} eski rolleri silinemedi: {errors}");
+                    }
                 }
-            }
 
-            if (tenant is not null)
-            {
-                await EnsureClaimAsync(userManager, user, "tenant_id", tenant.Id.ToString());
-                await EnsureClaimAsync(userManager, user, "tenant_name", tenant.Name);
-            }
-            else
-            {
-                await EnsureClaimAsync(userManager, user, "tenant_name", "ALL");
-            }
-        }
-
-        private static async Task EnsureClaimAsync(
-            UserManager<AuthUser> userManager,
-            AuthUser user,
-            string claimType,
-            string claimValue)
-        {
-            var claims = await userManager.GetClaimsAsync(user);
-            var existingClaims = claims.Where(x => x.Type == claimType).ToList();
-
-            foreach (var claim in existingClaims.Where(x => x.Value != claimValue))
-            {
-                var removeResult = await userManager.RemoveClaimAsync(user, claim);
-                if (!removeResult.Succeeded)
+                var addRoleResult = await userManager.AddToRoleAsync(user, role);
+                if (!addRoleResult.Succeeded)
                 {
-                    var errors = string.Join(", ", removeResult.Errors.Select(e => e.Description));
-                    throw new Exception($"{user.UserName} kullanıcısından {claimType} claim'i silinemedi: {errors}");
-                }
-            }
-
-            var hasCorrectClaim = existingClaims.Any(x => x.Value == claimValue);
-            if (!hasCorrectClaim)
-            {
-                var addResult = await userManager.AddClaimAsync(user, new Claim(claimType, claimValue));
-                if (!addResult.Succeeded)
-                {
-                    var errors = string.Join(", ", addResult.Errors.Select(e => e.Description));
-                    throw new Exception($"{user.UserName} kullanıcısına {claimType} claim'i eklenemedi: {errors}");
+                    var errors = string.Join(", ", addRoleResult.Errors.Select(e => e.Description));
+                    throw new Exception($"{username} rol atanamadı: {errors}");
                 }
             }
         }
@@ -166,9 +153,7 @@ namespace SlaMonitor.Auth
 
             var existingApp = await appManager.FindByClientIdAsync(clientId);
             if (existingApp != null)
-            {
                 return;
-            }
 
             await appManager.CreateAsync(new OpenIddictApplicationDescriptor
             {
@@ -183,12 +168,9 @@ namespace SlaMonitor.Auth
                 {
                     Permissions.Endpoints.Authorization,
                     Permissions.Endpoints.Token,
-
                     Permissions.GrantTypes.AuthorizationCode,
                     Permissions.GrantTypes.RefreshToken,
-
                     Permissions.ResponseTypes.Code,
-
                     Permissions.Prefixes.Scope + Scopes.OpenId,
                     Permissions.Prefixes.Scope + Scopes.Profile,
                     Permissions.Prefixes.Scope + Scopes.OfflineAccess,

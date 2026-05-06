@@ -19,9 +19,19 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSession(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {
-    options.UseSqlite("Data Source=auth.db");
+    var dbPath = Path.Combine(builder.Environment.ContentRootPath, "auth.db");
+    Console.WriteLine("AUTH DB PATH => " + dbPath);
+
+    options.UseSqlite($"Data Source={dbPath}");
     options.UseOpenIddict();
 });
 
@@ -45,7 +55,7 @@ builder.Services.AddOpenIddict()
         options.SetAuthorizationEndpointUris("/connect/authorize")
                .SetTokenEndpointUris("/connect/token");
 
-        options.SetIssuer(new Uri("http://localhost:5183/"));
+        options.SetIssuer(new Uri("http://sla-auth:8080/"));
 
         options.AllowAuthorizationCodeFlow()
                .AllowRefreshTokenFlow();
@@ -56,8 +66,8 @@ builder.Services.AddOpenIddict()
             OpenIddictConstants.Scopes.OfflineAccess,
             "incidents_api");
 
-        options.SetAccessTokenLifetime(TimeSpan.FromSeconds(30));
-        options.SetRefreshTokenLifetime(TimeSpan.FromSeconds(60));
+        options.SetAccessTokenLifetime(TimeSpan.FromMinutes(5));
+        options.SetRefreshTokenLifetime(TimeSpan.FromMinutes(30));
 
         options.DisableRollingRefreshTokens();
         options.DisableSlidingRefreshTokenExpiration();
@@ -81,10 +91,13 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
 
-    // Migration ile gittiğimiz için bunu bırakıyoruz.
-    db.Database.EnsureCreated();
+    Console.WriteLine("MIGRATION BASLIYOR...");
+    db.Database.Migrate();
+    Console.WriteLine("MIGRATION BITTI.");
 
+    Console.WriteLine("SEED BASLIYOR...");
     await IdentitySeed.SeedAsync(scope.ServiceProvider);
+    Console.WriteLine("SEED BITTI.");
 }
 
 app.UseStaticFiles();
@@ -92,10 +105,12 @@ app.UseRouting();
 
 app.UseCors("frontend");
 
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapDefaultControllerRoute();
 
-app.Run("http://localhost:5183");
+app.Run();

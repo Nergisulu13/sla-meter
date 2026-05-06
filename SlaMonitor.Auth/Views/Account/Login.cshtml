@@ -1,7 +1,4 @@
-@{
-    var error = ViewData["Error"] as string;
-    var returnUrl = ViewData["ReturnUrl"] as string;
-}
+@model SlaMonitor.Auth.Models.LoginViewModel
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -24,244 +21,284 @@
 
         body {
             min-height: 100vh;
-            background: #f3f3f3;
+            background:
+                radial-gradient(circle at top left, rgba(66, 226, 226, 0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(226, 66, 176, 0.08), transparent 25%),
+                linear-gradient(180deg, #f7f8fb 0%, #f1f3f7 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        body::before,
-        body::after {
-            content: "";
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.03);
-            z-index: 0;
-        }
-
-        body::before {
-            width: 720px;
-            height: 720px;
-            left: -280px;
-            bottom: -260px;
-        }
-
-        body::after {
-            width: 980px;
-            height: 980px;
-            right: -420px;
-            top: -300px;
-        }
-
-        .page {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 560px;
             padding: 24px;
         }
 
-        /* 🔥 BRAND (LOGO + TEXT) */
-        .brand {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 36px;
+        .page {
+            width: 100%;
+            max-width: 720px;
         }
 
-        .logo {
-            width: 250px;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .brand-text {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-        }
-
-        .brand-main {
-            font-size: 28px;
-            font-weight: 500;
-            color: #222;
-        }
-
-        .brand-sub {
-            font-size: 16px;
-            color: #9aa0a6;
-        }
-
-        /* CARD */
         .login-card {
-            background: #ffffff;
-            border: 1px solid #d9d9d9;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            position: relative;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 231, 238, 0.95);
+            border-radius: 24px;
+            box-shadow:
+                0 20px 50px rgba(15, 23, 42, 0.10),
+                0 2px 10px rgba(15, 23, 42, 0.04);
             overflow: hidden;
         }
 
+        .login-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, #35d9df 0%, #ca4cb5 100%);
+        }
+
         .card-header {
-            padding: 22px 30px;
-            border-bottom: 1px solid #ececec;
-            font-size: 20px;
-            font-weight: 700;
-            color: #000;
-            background: #fff;
-        }
-
-        .tenant-row {
+            padding: 32px 32px 22px;
+            border-bottom: 1px solid #edf0f5;
             display: flex;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            padding: 20px 30px;
-            border-bottom: 1px solid #ececec;
-            background: #fafafa;
+            background: linear-gradient(180deg, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.45) 100%);
         }
 
-        .tenant-label {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .tenant-name {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .switch-btn {
-            border: 2px solid #183a6b;
-            background: #fff;
-            color: #183a6b;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
+        .brand-logo {
+            width: 250px;
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
 
         .card-body {
-            padding: 30px;
+            padding: 28px 32px 32px;
         }
 
-        .error-box {
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            background: #fff1f1;
-            border: 1px solid #f1bcbc;
-            color: #b42318;
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .welcome-text h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+        }
+
+        .welcome-text p {
+            margin: 0;
+            font-size: 15px;
+            color: #667085;
         }
 
         .input-group {
-            margin-bottom: 14px;
+            margin-bottom: 18px;
         }
 
-        .input-box {
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .input-box,
+        .select-box {
             width: 100%;
-            height: 64px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            background: #f3f3f3;
-            padding: 0 16px;
-            font-size: 15px;
+            height: 58px;
+            border-radius: 16px;
+            border: 1px solid #d9e0ea;
+            background: #f8fafc;
+            padding: 0 18px;
+            font-size: 16px;
+            color: #0f172a;
             outline: none;
+            transition: all 0.20s ease;
         }
 
-        .input-box:focus {
-            background: #fff;
-            border-color: #183a6b;
+        .input-box::placeholder,
+        .select-box::placeholder {
+            color: #98a2b3;
         }
 
-        .options-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 12px 0 22px;
+        .input-box:hover,
+        .select-box:hover {
+            border-color: #c6d0dc;
+            background: #ffffff;
         }
 
-        .forgot-link {
-            color: #183a6b;
+        .input-box:focus,
+        .select-box:focus {
+            background: #ffffff;
+            border-color: #7c93b8;
+            box-shadow: 0 0 0 4px rgba(22, 57, 106, 0.10);
+        }
+
+        .field-validation-error {
+            color: #b42318;
+            font-size: 13px;
+            margin-top: 7px;
+            display: block;
+            padding-left: 2px;
         }
 
         .login-btn {
             width: 100%;
-            height: 50px;
+            height: 60px;
             border: none;
-            border-radius: 8px;
-            background: #16396a;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1f4b89 0%, #16396a 100%);
             color: #fff;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: 700;
             cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 12px 24px rgba(22, 57, 106, 0.22);
+            transition: transform 0.15s ease, box-shadow 0.20s ease, filter 0.20s ease;
         }
 
         .login-btn:hover {
-            background: #0f2f5a;
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(22, 57, 106, 0.28);
+            filter: brightness(1.02);
         }
 
-    </style>
-</head>
-<body>
+        .login-btn:active {
+            transform: translateY(0);
+        }
 
-<div class="page">
+        .validation-summary-errors {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: #fef3f2;
+            border: 1px solid #fecdca;
+            color: #b42318;
+            font-size: 14px;
+        }
 
-    <!-- 🔥 LOGO + TEXT -->
-    <div class="brand">
-        <img src="/logo-dark.png" class="logo" />
-        <div class="brand-text">
-        </div>
-    </div>
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 18px;
+        }
 
-    <div class="login-card">
+        .debug-box {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #e4e7ec;
+            color: #344054;
+            font-size: 14px;
+            word-break: break-word;
+        }
 
-        <div class="card-header">
-            Login
-        </div>
-
-        <div class="tenant-row">
-            <div>
-                <div class="tenant-label">Tenant</div>
-                <div class="tenant-name">default</div>
-            </div>
-
-            <button class="switch-btn">switch</button>
-        </div>
-
-        <div class="card-body">
-
-            @if (!string.IsNullOrEmpty(error))
-            {
-                <div class="error-box">@error</div>
+        @@media (max-width: 768px) {
+            body {
+                padding: 16px;
             }
 
-            <form method="post" action="/account/login">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="returnUrl" value="@returnUrl" />
+            .login-card {
+                border-radius: 20px;
+            }
 
-                <div class="input-group">
-                    <input class="input-box" name="username" placeholder="User name or email address" />
+            .card-header {
+                padding: 24px 20px 18px;
+            }
+
+            .brand-logo {
+                width: 210px;
+            }
+
+            .card-body {
+                padding: 22px 20px 24px;
+            }
+
+            .welcome-text h1 {
+                font-size: 24px;
+            }
+
+            .welcome-text p {
+                font-size: 14px;
+            }
+
+            .input-box,
+            .select-box {
+                height: 54px;
+                border-radius: 14px;
+                font-size: 15px;
+            }
+
+            .login-btn {
+                height: 56px;
+                border-radius: 14px;
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="login-card">
+            <div class="card-header">
+                <img src="~/sestek.png" class="brand-logo" alt="Sestek" />
+            </div>
+
+            <div class="card-body">
+                <div class="welcome-text">
                 </div>
 
-                <div class="input-group">
-                    <input class="input-box" type="password" name="password" placeholder="Password" />
-                </div>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "validation-summary-errors" })
+                }
 
-                <div class="options-row">
-                    <label>
-                        <input type="checkbox" name="rememberMe" />
-                        Remember me
-                    </label>
+                @if (ViewData["Debug"] is string debug && !string.IsNullOrWhiteSpace(debug))
+                {
+                    <div class="debug-box">@debug</div>
+                }
 
-                    <a href="#" class="forgot-link">Forgot password?</a>
-                </div>
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
 
-                <button class="login-btn">Login</button>
-            </form>
+                    <div class="input-group">
+                        <label asp-for="TenantId" class="input-label"></label>
+                        <select asp-for="TenantId" class="select-box">
+                            <option value="">Tenant seçiniz</option>
+                            <option value="11111111-1111-1111-1111-111111111111">Eclit</option>
+                            <option value="22222222-2222-2222-2222-222222222222">Paris</option>
+                            <option value="33333333-3333-3333-3333-333333333333">Huawei</option>
+                            <option value="44444444-4444-4444-4444-444444444444">Ohio</option>
+                            <option value="55555555-5555-5555-5555-555555555555">UAE</option>
+                            <option value="66666666-6666-6666-6666-666666666666">Preprod Ireland</option>
+                        </select>
+                        <span asp-validation-for="TenantId" class="field-validation-error"></span>
+                    </div>
 
+                    <div class="input-group">
+                        <label asp-for="UserName" class="input-label"></label>
+                        <input asp-for="UserName" class="input-box" placeholder="Kullanıcı adınızı girin" />
+                        <span asp-validation-for="UserName" class="field-validation-error"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <label asp-for="Password" class="input-label"></label>
+                        <input asp-for="Password" type="password" class="input-box" placeholder="Şifrenizi girin" />
+                        <span asp-validation-for="Password" class="field-validation-error"></span>
+                    </div>
+
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <button type="submit" class="login-btn">Login</button>
+                </form>
+            </div>
         </div>
     </div>
-
-</div>
-
 </body>
 </html>

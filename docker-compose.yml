@@ -1,18 +1,39 @@
 services:
-  backend:
-    image: ghcr.io/nergisulu13/sla-meter-backend:v1
-    container_name: sla-backend
+  auth:
+    build:
+      context: ./SlaMonitor.Auth
+    container_name: sla-auth
     ports:
-      - "5000:8080"
+      - "5183:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_ENVIRONMENT=Production
     volumes:
       - ./data:/app/data
     restart: unless-stopped
 
+  backend:
+    build:
+      context: ./SlaMonitor.Api
+    container_name: sla-backend
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - auth
+    restart: unless-stopped
+
   frontend:
-    image: ghcr.io/nergisulu13/sla-meter-frontend:v1
+    build:
+      context: ./sla-monitor-ui
     container_name: sla-frontend
     ports:
       - "4200:80"
     depends_on:
       - backend
+      - auth
     restart: unless-stopped

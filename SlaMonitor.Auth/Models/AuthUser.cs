@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace SlaMonitor.Auth.Models;
-
-public class AuthUser : IdentityUser
+namespace SlaMonitor.Auth.Models
 {
-    public string Tenant { get; set; } = "default";
-    public Guid? TenantId { get; set; }
+    public class AuthUser : IdentityUser
+    {
+        public Guid? TenantId { get; set; }
+        public Tenant? Tenant { get; set; }
+    }
 }

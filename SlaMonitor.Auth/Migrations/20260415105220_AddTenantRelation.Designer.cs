@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SlaMonitor.Auth.Data;
 
@@ -10,9 +11,11 @@ using SlaMonitor.Auth.Data;
 namespace SlaMonitor.Auth.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    partial class AuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260415105220_AddTenantRelation")]
+    partial class AddTenantRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.24");
@@ -430,7 +433,6 @@ namespace SlaMonitor.Auth.Migrations
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
-                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
@@ -438,13 +440,9 @@ namespace SlaMonitor.Auth.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Tenants");
                 });
