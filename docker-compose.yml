@@ -1,7 +1,6 @@
 services:
   auth:
-    build:
-      context: ./SlaMonitor.Auth
+    image: ghcr.io/nergisulu13/sla-meter-auth:v2
     container_name: sla-auth
     ports:
       - "5183:8080"
@@ -13,8 +12,7 @@ services:
     restart: unless-stopped
 
   backend:
-    build:
-      context: ./SlaMonitor.Api
+    image: ghcr.io/nergisulu13/sla-meter-backend:v2
     container_name: sla-backend
     ports:
       - "5000:8080"
@@ -28,8 +26,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./sla-monitor-ui
+    image: ghcr.io/nergisulu13/sla-meter-frontend:v2
     container_name: sla-frontend
     ports:
       - "4200:80"
